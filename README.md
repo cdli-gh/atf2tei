@@ -10,5 +10,6 @@ of scholarly texts.
 It is intended as part of an interface to make the CDLI and related
 databases more accessible.
 
-The project was originally written as part of a Google Summer of Code
+The project was originally written as part of a Google
+[Summer of Code](https://summerofcode.withgoogle.com/)
 project in 2019.
