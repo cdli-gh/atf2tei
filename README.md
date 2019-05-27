@@ -1,4 +1,4 @@
-= atf2tei
+# atf2tei
 
 This is a tool for converting [ATF](http://oracc.museum.upenn.edu/doc/help/editinginatf/),
 a text markup format used by the [Cuneiform Digital Library Initiative](https://cdli.ucla.edu)
