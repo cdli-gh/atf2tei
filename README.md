@@ -13,3 +13,14 @@ databases more accessible.
 The project was originally written as part of a Google
 [Summer of Code](https://summerofcode.withgoogle.com/)
 project in 2019.
+
+## Getting Started
+
+    ```
+    pipenv install
+    pipenv run python atf2tei.py SIL-034.atf
+    ```
+
+The first line sets up a python virtual environment and installs
+the dependencies. It only needs to be run once.
+The second converts the included atf text file to tei.
