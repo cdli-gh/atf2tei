@@ -5,49 +5,56 @@
     <title>SIL 034</title>
   </titleStmt>
   <publicationStmt>
-   <!--
-    Primary publication: LAOS 1, 47
-    Author: Sallaberger, Walther
-    Publication date: 2011
-  -->
-  <idno type="CDLI">P481090</idno>
+    <p>Converted manually from CDLI ATF.</p>
   </publicationStmt>
+  <sourceDesc>
+    <listBibl>
+      <bibl>
+        <title>CDLI <idno type="CDLI">P481090</idno></title>
+      </bibl>
+      <bibl>
+        <author>Sallaberger, Walther</author>
+        <title level="j">LAOS</title> 1, 47
+        <date>2011</date>
+      </bibl>
+    </listBibl>
+  </sourceDesc>
 </fileDesc>
 </teiHeader>
 <text>
 <body>
-<div type="tablet">
-<div type="obverse">
-<l>1. a-na be-el-szu-nu</l>
-<l>2. qi2-bi2-ma</l>
-<l>3. um-ma qur2-di-sza-ma</l>
-<l>4. {d}utu li-ba-al-li-it,-ka</l>
-<l>5. ki-a-am ta-asz-pu-ra-am</l>
-<l>6. um-ma at-ta!-ma</l>
-<l>7. _1(bur3) 1(esze3) GAN2 a-sza3_ ma-as,-s,a-ri</l>
-<l>8. am-ta-ha-as,</l>
-<l>9. isz-tu _gu4-hi-a_ ta-ak-lu-ku</l>
-<l>10. _1(bur3) 1(esze3) GAN2 a-sza3_ ma-as,-s,a-ri</l>
-<l>11. ta-am!(A2)-ha-as,</l>
-<l>12. sza-at-tu-um</l>
-<l>13. u2-ul it-ta-la-ak-ma!(KA)</l>
-<l>14. ki-ma te-isz-mu-u2</l>
-<l>15. sza#-at-tam _sze_-am</l>
-<l>16. u2-ul* el-qe2-e</l>
-<l>17. _a-sza3_ sza {d}utu-li-s,i2</l>
-<l>18. i-na me-e na-di-in*</l>
-</div>
-<div type="reverse">
-<l>1. ta#-[asz]-ni _a-sza3_ sza!-tu</l>
-<l>2. _sze-gesz-i3_ e-pu-usz</l>
-<l>3. _sze-gesz-i3_ sza te-pu-szu</l>
-<l>4. lu ha-ar-pu</l>
-<l>5. ni-di a-hi-im</l>
-<l>6. la# ta-ra-szi-ma</l>
-<l>7. [x]-e?*-ka la ip*-pa-sza-ar</l>
-<l>$ blank space</l>
-</div>
-</div>
+  <div type="tablet">
+    <div type="obverse">
+      <l>a-na be-el-szu-nu</l>
+      <l>qi2-bi2-ma</l>
+      <l>um-ma qur2-di-sza-ma</l>
+      <l>{d}utu li-ba-al-li-it,-ka</l>
+      <l>ki-a-am ta-asz-pu-ra-am</l>
+      <l>um-ma at-ta!-ma</l>
+      <l>_1(bur3) 1(esze3) GAN2 a-sza3_ ma-as,-s,a-ri</l>
+      <l>am-ta-ha-as,</l>
+      <l>isz-tu _gu4-hi-a_ ta-ak-lu-ku</l>
+      <l>_1(bur3) 1(esze3) GAN2 a-sza3_ ma-as,-s,a-ri</l>
+      <l>ta-am!(A2)-ha-as,</l>
+      <l>sza-at-tu-um</l>
+      <l>u2-ul it-ta-la-ak-ma!(KA)</l>
+      <l>ki-ma te-isz-mu-u2</l>
+      <l>sza#-at-tam _sze_-am</l>
+      <l>u2-ul* el-qe2-e</l>
+      <l>_a-sza3_ sza {d}utu-li-s,i2</l>
+      <l>i-na me-e na-di-in*</l>
+    </div>
+    <div type="reverse">
+      <l>ta#-[asz]-ni _a-sza3_ sza!-tu</l>
+      <l>_sze-gesz-i3_ e-pu-usz</l>
+      <l>_sze-gesz-i3_ sza te-pu-szu</l>
+      <l>lu ha-ar-pu</l>
+      <l>ni-di a-hi-im</l>
+      <l>la# ta-ra-szi-ma</l>
+      <l>[x]-e?*-ka la ip*-pa-sza-ar</l>
+      <l>$ blank space</l>
+    </div>
+  </div>
 </body>
 </text>
 </TEI>
