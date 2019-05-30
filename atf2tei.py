@@ -54,8 +54,7 @@ def convert(infile):
     result += '''
 </body>
 </text>
-</TEI>
-'''
+</TEI>'''
     return result
 
 
