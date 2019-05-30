@@ -1,5 +1,7 @@
 # atf2tei
 
+[![Build Status](https://travis-ci.org/rillian/atf2tei.svg?branch=master)](https://travis-ci.org/rillian/atf2tei)
+
 This is a tool for converting [ATF](http://oracc.museum.upenn.edu/doc/help/editinginatf/),
 a text markup format used by the [Cuneiform Digital Library Initiative](https://cdli.ucla.edu)
 to describe inscriptions on clay tablets and other artefacts,
