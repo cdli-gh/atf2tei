@@ -1,5 +1,6 @@
 from pyoracc.atf.common.atffile import AtfFile
 from pyoracc.model.line import Line
+from pyoracc.model.oraccobject import OraccObject
 
 
 def convert(infile):
@@ -30,9 +31,15 @@ def convert(infile):
 <body>
 '''
     for item in atf.text.children:
-        result += '  <div type="{}">\n'.format(item.objecttype)
+        if isinstance(item, OraccObject):
+            result += '  <div type="{}">\n'.format(item.objecttype)
+        else:
+            result += '  <!-- {}: {} -->\n'.format(type(item).__name__, item)
         for section in item.children:
-            result += '    <div type="{}">\n'.format(section.objecttype)
+            if isinstance(section, OraccObject):
+                result += '    <div type="{}">\n'.format(section.objecttype)
+            else:
+                result += '    <!-- {}: {} -->\n'.format(type(item).__name__, item)
             for line in section.children:
                 if isinstance(line, Line):
                     result += '      <l>{}</l>\n'.format(' '.join(line.words))
