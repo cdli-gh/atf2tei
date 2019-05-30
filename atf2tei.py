@@ -1,3 +1,5 @@
+from xml.sax.saxutils import escape
+
 from pyoracc.atf.common.atffile import AtfFile
 from pyoracc.model.line import Line
 from pyoracc.model.oraccobject import OraccObject
@@ -34,15 +36,17 @@ def convert(infile):
         if isinstance(item, OraccObject):
             result += f'  <div type="{item.objecttype}">\n'
         else:
-            result += f'  <!-- {type(item).__name__}: {item} -->\n'
+            result += '  <div>\n' \
+                     f'<!-- {type(item).__name__}: {item} -->\n'
         for section in item.children:
             if isinstance(section, OraccObject):
                 result += f'    <div type="{section.objecttype}">\n'
             else:
-                result += f'    <!-- {type(section).__name__}: {section} -->\n'
+                result += '    <div>\n' \
+                         f'<!-- {type(section).__name__}: {section} -->\n'
             for line in section.children:
                 if isinstance(line, Line):
-                    result += f'      <l>{" ".join(line.words)}</l>\n'
+                    result += f'      <l>{escape(" ".join(line.words))}</l>\n'
                 else:
                     result += f'      <!-- {type(line).__name__}: {line} -->\n'
             result += '    </div>\n'
