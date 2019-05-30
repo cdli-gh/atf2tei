@@ -32,20 +32,19 @@ def convert(infile):
 '''
     for item in atf.text.children:
         if isinstance(item, OraccObject):
-            result += '  <div type="{}">\n'.format(item.objecttype)
+            result += f'  <div type="{item.objecttype}">\n'
         else:
-            result += '  <!-- {}: {} -->\n'.format(type(item).__name__, item)
+            result += f'  <!-- {type(item).__name__}: {item} -->\n'
         for section in item.children:
             if isinstance(section, OraccObject):
-                result += '    <div type="{}">\n'.format(section.objecttype)
+                result += f'    <div type="{section.objecttype}">\n'
             else:
-                result += '    <!-- {}: {} -->\n'.format(type(item).__name__, item)
+                result += f'    <!-- {type(section).__name__}: {section} -->\n'
             for line in section.children:
                 if isinstance(line, Line):
-                    result += '      <l>{}</l>\n'.format(' '.join(line.words))
+                    result += f'      <l>{" ".join(line.words)}</l>\n'
                 else:
-                    result += '      <!-- {}: {} -->\n'.format(
-                        type(line).__name__, line)
+                    result += f'      <!-- {type(line).__name__}: {line} -->\n'
             result += '    </div>\n'
         result += '  </div>\n'
     result += '''
