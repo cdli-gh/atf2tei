@@ -29,9 +29,9 @@ def convert(infile):
 </teiHeader>
 '''.format(description=atf.text.description, code=atf.text.code)
     result += '''
-<text>
+<text xml:lang="{}">
 <body>
-'''
+'''.format(atf.text.language)
     for item in atf.text.children:
         if isinstance(item, OraccObject):
             result += f'  <div type="{item.objecttype}">\n'
