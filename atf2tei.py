@@ -59,8 +59,9 @@ def convert(infile):
 
 
 if __name__ == '__main__':
+    import io
     import sys
     for filename in sys.argv[1:]:
-        with open(filename) as f:
+        with io.open(filename, encoding='utf-8') as f:
             xml = convert(f)
             print(xml)
