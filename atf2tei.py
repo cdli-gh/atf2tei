@@ -45,12 +45,14 @@ def convert(infile):
             else:
                 result += '    <div>\n' \
                          f'<!-- {type(section).__name__}: {section} -->\n'
-            for line in section.children:
+            offset = 1
+            for index, line in enumerate(section.children):
                 if isinstance(line, Line):
                     text = normalize_transliteration(line.words)
-                    result += f'      <l>{text}</l>\n'
+                    result += f'      <l n="{index + offset}">{text}</l>\n'
                 else:
                     result += f'      <!-- {type(line).__name__}: {line} -->\n'
+            offset += len(section.children)
             result += '    </div>\n'
         result += '  </div>\n'
     result += '''
