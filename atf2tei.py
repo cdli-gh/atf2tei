@@ -30,21 +30,39 @@ def convert(infile):
     <idno type="CDLI">{code}</idno>
   </sourceDesc>
 </fileDesc>
+<encodingDesc>
+  <refsDecl n="CTS">
+    <cRefPattern n="line"
+                 matchPattern="(\\w+)\\.(\\w+)\\.(\\w+)"
+                 replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\']/tei:div[@n=\'$2\']/tei:l[@n=\'$3\'])">
+        <p>This pointer pattern extracts a specific line.</p>
+    </cRefPattern>
+    <cRefPattern n="surface"
+                 matchPattern="(\\w+)\\.(\\w+)"
+                 replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\']/tei:div[@n=\'$2\'])">
+        <p>This pointer pattern extracts an inscribed surface.</p>
+    </cRefPattern>
+    <cRefPattern n="object"
+                 matchPattern="(\\w+)"
+                 replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\'])">
+        <p>This pointer pattern extracts a specific artefact, usually a tablet.</p>
+    </cRefPattern>
+  </refsDecl>
+</encodingDesc>
 </teiHeader>
 '''.format(description=atf.text.description, code=atf.text.code)
-    result += '''
-<text>
+    result += f'''
+<text xml:lang="{atf.text.language}">
 <body>
 '''
-    for item in atf.text.children:
-        if isinstance(item, OraccObject):
-            result += f'  <div type="{item.objecttype}">\n'
-        else:
-            result += '  <div>\n' \
-                     f'<!-- {type(item).__name__}: {item} -->\n'
+    objects = [item for item in atf.text.children
+               if isinstance(item, OraccObject)]
+    result += '''  <div type="edition">\n'''
+    for item in objects:
+        result += f'  <div type="textpart" n="{item.objecttype}">\n'
         for section in item.children:
             if isinstance(section, OraccObject):
-                result += f'    <div type="{section.objecttype}">\n'
+                result += f'    <div type="textpart" n="{section.objecttype}">\n'
             else:
                 result += '    <div>\n' \
                          f'<!-- {type(section).__name__}: {section} -->\n'
@@ -59,6 +77,7 @@ def convert(infile):
             result += '    </div>\n'
         result += '  </div>\n'
     result += '''
+  </div>
 </body>
 </text>
 </TEI>'''
