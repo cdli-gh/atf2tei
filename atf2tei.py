@@ -35,26 +35,28 @@ def convert(infile):
     <cRefPattern n="line"
                  matchPattern="(\\w+)\\.(\\w+)\\.(\\w+)"
                  replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\']/tei:div[@n=\'$2\']/tei:l[@n=\'$3\'])">
-        <p>This pointer pattern extracts a specific line.</p>
+      <p>This pointer pattern extracts a specific line.</p>
     </cRefPattern>
     <cRefPattern n="surface"
                  matchPattern="(\\w+)\\.(\\w+)"
                  replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\']/tei:div[@n=\'$2\'])">
-        <p>This pointer pattern extracts an inscribed surface.</p>
+      <p>This pointer pattern extracts an inscribed surface.</p>
     </cRefPattern>
     <cRefPattern n="object"
                  matchPattern="(\\w+)"
                  replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\'])">
-        <p>This pointer pattern extracts a specific artefact, usually a tablet.</p>
+      <p>This pointer pattern extracts a specific artefact,
+         usually a tablet.</p>
     </cRefPattern>
   </refsDecl>
 </encodingDesc>
 </teiHeader>
 '''.format(description=atf.text.description, code=atf.text.code)
-    result += f'''
-<text xml:lang="{atf.text.language}">
-<body>
-'''
+    if atf.text.language:
+        result += f'<text xml:lang="{atf.text.language}">\n'
+    else:
+        result += f'<text>\n'
+    result += '<body>\n'
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
     result += '''  <div type="edition">\n'''
@@ -62,7 +64,8 @@ def convert(infile):
         result += f'  <div type="textpart" n="{item.objecttype}">\n'
         for section in item.children:
             if isinstance(section, OraccObject):
-                result += f'    <div type="textpart" n="{section.objecttype}">\n'
+                result += '    <div type="textpart"' \
+                          f' n="{section.objecttype}">\n'
             else:
                 result += '    <div>\n' \
                          f'<!-- {type(section).__name__}: {section} -->\n'
