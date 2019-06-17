@@ -5,14 +5,17 @@ from pyoracc.atf.common.atffile import AtfFile
 from pyoracc.model.line import Line
 from pyoracc.model.oraccobject import OraccObject
 
+verbose = False
+
 
 def convert(infile):
     """
     Create a TEI representation of a file-like object containing ATF.
     """
     atf = AtfFile(infile.read(), 'cdli', False)
-    print("Parsed {} -- {}".format(atf.text.code, atf.text.description))
-    result = '''
+    if verbose:
+        print("Parsed {} -- {}".format(atf.text.code, atf.text.description))
+    result = '''<?xml version="1.0" encoding="UTF-8"?>
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
 
 <teiHeader>
