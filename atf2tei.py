@@ -96,7 +96,7 @@ def normalize_transliteration(words):
         word = re.sub(r'sz', 'š', word)     # \u0161
         word = re.sub(r'SZ', 'Š', word)     # \u0160
         word = re.sub(r's,', 'ṣ', word)     # \u1E63
-        word = re.sub(r'S.', 'Ṣ', word)     # \u1E62
+        word = re.sub(r'S,', 'Ṣ', word)     # \u1E62
         word = re.sub(r't,', 'ṭ', word)     # \u1E6D
         word = re.sub(r'T,', 'Ṭ', word)     # \u1E6C
         word = re.sub(r's\'', 'ś', word)    # \u015B
