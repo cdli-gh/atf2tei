@@ -4,6 +4,7 @@ from xml.sax.saxutils import escape
 from pyoracc.atf.common.atffile import AtfFile
 from pyoracc.model.line import Line
 from pyoracc.model.oraccobject import OraccObject
+from pyoracc.model.translation import Translation
 
 verbose = False
 
@@ -66,6 +67,9 @@ def convert(infile):
             if isinstance(section, OraccObject):
                 result += '    <div type="textpart"' \
                           f' n="{section.objecttype}">\n'
+            elif isinstance(section, Translation):
+                # Handle in another pass.
+                continue
             else:
                 result += '    <div>\n' \
                          f'<!-- {type(section).__name__}: {section} -->\n'
@@ -79,8 +83,34 @@ def convert(infile):
             offset += len(section.children)
             result += '    </div>\n'
         result += '  </div>\n'
+    result += '  </div>\n'
+    objects = [item for item in atf.text.children
+               if isinstance(item, OraccObject)]
+    result += '  <div type="translation">\n'
+    for item in objects:
+        result += f'    <div type="textpart" n="{item.objecttype}">\n'
+        for section in item.children:
+            # Skip anything which is not a translation for this pass.
+            if not isinstance(section, Translation):
+                continue
+            offset = 1
+            for surface in section.children:
+                result += f'      <div type="textpart" ' \
+                          f'n="{surface.objecttype}">\n'
+                if isinstance(surface, OraccObject):
+                    for index, line in enumerate(surface.children):
+                        if isinstance(line, Line):
+                            text = normalize_transliteration(line.words)
+                            result += '        ' \
+                                      f'<l n="{index + offset}">{text}</l>\n'
+                        else:
+                            result += '        <!-- ' \
+                                      f'{type(line).__name__}: {line} -->\n'
+                    offset += len(section.children)
+                    result += '      </div>\n'
+        result += '    </div>\n'
+    result += '  </div>\n'
     result += '''
-  </div>
 </body>
 </text>
 </TEI>'''
