@@ -100,7 +100,7 @@ def convert(infile):
                 if isinstance(surface, OraccObject):
                     for index, line in enumerate(surface.children):
                         if isinstance(line, Line):
-                            text = normalize_transliteration(line.words)
+                            text = ' '.join(line.words)
                             result += '        ' \
                                       f'<l n="{index + offset}">{text}</l>\n'
                         else:
