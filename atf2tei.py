@@ -53,10 +53,11 @@ def convert(infile):
 </encodingDesc>
 </teiHeader>
 '''.format(description=atf.text.description, code=atf.text.code)
+    urn = f'urn:cts:cdli:test.{atf.text.code}'
+    result += f'<text n="{urn}"'
     if atf.text.language:
-        result += f'<text xml:lang="{atf.text.language}">\n'
-    else:
-        result += f'<text>\n'
+        result += f' xml:lang="{atf.text.language}"'
+    result += '>\n'
     result += '<body>\n'
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
