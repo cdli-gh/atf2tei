@@ -13,11 +13,11 @@ from pyoracc.model.translation import Translation
 verbose = False
 
 
-def convert(infile):
+def convert(atf_text):
     """
     Create a TEI representation of a file-like object containing ATF.
     """
-    atf = AtfFile(infile.read(), 'cdli', False)
+    atf = AtfFile(atf_text, 'cdli', False)
     if verbose:
         print("Parsed {} -- {}".format(atf.text.code, atf.text.description))
     result = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -156,5 +156,5 @@ if __name__ == '__main__':
     import sys
     for filename in sys.argv[1:]:
         with io.open(filename, encoding='utf-8') as f:
-            xml = convert(f)
+            xml = convert(f.read())
             print(xml)
