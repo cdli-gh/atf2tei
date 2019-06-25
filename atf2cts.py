@@ -73,12 +73,14 @@ if __name__ == '__main__':
   groupUrn="urn:cts:cdli:test"
        urn="{urn}"
   xml:lang="{lang}">
-  <ti:title xml:lang="akk">{title}</ti:title>
+  <ti:title xml:lang="akk">{atf2tei.escape(title)}</ti:title>
   <ti:edition
     workUrn="{urn}"
         urn="{urn}.{lang}"
   >
-    <ti:label xml:lang="en">CDLI {doc_dirname} {title}</ti:label>
+    <ti:label xml:lang="en">
+      CDLI {doc_dirname} {atf2tei.escape(title)}
+    </ti:label>
     <ti:description xml:lang="en">Test doc converted from atf.</ti:description>
   </ti:edition>
 </ti:work>
