@@ -1,5 +1,5 @@
 import io
-import itertools
+from itertools import repeat
 
 import pytest
 
@@ -33,7 +33,7 @@ def test_segmentor(count):
         text = f.read()
     assert text
 
-    loop = itertools.repeat(text)
-    multi = '\n\n'.join(itertools.islice(loop, count))
+    multi = repeat(text, count)
+    multi = '\n\n'.join(multi)
     multi = io.StringIO(multi)
     assert (len(list(atf2cts.segmentor(multi)))) == count
