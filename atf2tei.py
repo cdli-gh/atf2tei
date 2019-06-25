@@ -56,7 +56,8 @@ def convert(infile):
   </refsDecl>
 </encodingDesc>
 </teiHeader>
-'''.format(description=atf.text.description, code=atf.text.code)
+'''.format(description=escape(atf.text.description),
+           code=escape(atf.text.code))
     urn = f'urn:cts:cdli:test.{atf.text.code}'
     result += f'<text n="{urn}"'
     if atf.text.language:
