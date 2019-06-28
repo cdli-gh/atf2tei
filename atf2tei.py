@@ -64,6 +64,7 @@ def convert(atf_text):
         result += f' xml:lang="{atf.text.language}"'
     result += '>\n'
     result += '<body>\n'
+    translations = {}
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
     result += '''  <div type="edition">\n'''
@@ -84,6 +85,19 @@ def convert(atf_text):
                 if isinstance(line, Line):
                     text = normalize_transliteration(line.words)
                     result += f'      <l n="{index + offset}">{text}</l>\n'
+                    # Older pyoracc parses interlinear translatsions
+                    # as notes. Remember them for serialization below.
+                    for note in line.notes:
+                        if note.content.startswith('tr.'):
+                            lang, text = note.content.split(':', maxsplit=1)
+                            _, lang = lang.split('.')
+                            # tr.ts is used for normalization, so mark
+                            # this with the primary object's language.
+                            if lang == 'ts':
+                                lang == atf.text.language
+                            if lang not in translations:
+                                translations[lang] = []
+                            translations[lang].append(text.strip())
                 else:
                     result += f'      <!-- {type(line).__name__}: {line} -->\n'
             offset += len(section.children)
@@ -116,6 +130,11 @@ def convert(atf_text):
                     result += '      </div>\n'
         result += '    </div>\n'
     result += '  </div>\n'
+    for lang, translation in translations.items():
+        result += f'  <div type="translation" xml:lang="{lang}">\n'
+        for index, line in enumerate(translation):
+            result += f'    <l n="{index + 1}">{escape(line)}</l>\n'
+        result += '  </div>\n'
     result += '''
 </body>
 </text>
