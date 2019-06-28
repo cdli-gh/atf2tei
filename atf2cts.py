@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import atf2tei
+import cts
 
 
 def segmentor(fp):
@@ -32,14 +33,13 @@ if __name__ == '__main__':
 
     data_path = 'data/test'
     os.makedirs(data_path, exist_ok=True)
+    textgroup = cts.TextGroup()
+    textgroup.urn = 'urn:cts:cdli:test'
+    textgroup.name = 'atf2cts test examples'
     with io.open(os.path.join(data_path, '__cts__.xml'),
                  encoding='utf-8',
                  mode='w') as f:
-        f.write('''<ti:textgroup xmlns:ti="http://chs.harvard.edu/xmlns/cts"
-              urn="urn:cts:cdli:test">
-  <ti:groupname xml:lang="eng">atf2tei test examples</ti:groupname>
-</ti:textgroup>
-''')
+        f.write(str(textgroup))
 
     for filename in sys.argv[1:]:
         print('-- Parsing:', filename)
@@ -59,31 +59,27 @@ if __name__ == '__main__':
                 lang = text.getAttribute('xml:lang')
                 title = dom.getElementsByTagName('title')[0].firstChild.data
                 print('-- title:', title)
+
                 doc_basename = urn.split(':')[-1]
                 doc_dirname = doc_basename.split('.')[-1]
                 doc_path = os.path.join(data_path, doc_dirname)
-                doc_filename = os.path.join(doc_path, doc_basename + '.' + lang + '.xml')
+                doc_filename = os.path.join(
+                        doc_path, doc_basename + '.' + lang + '.xml')
                 print('-- Writing', urn, lang, 'to', doc_filename)
+
+                work = cts.Work()
+                work.group_urn = textgroup.urn
+                work.work_urn = urn
+                work.language = lang
+                work.description = 'Test doc converted from atf.'
+                work.label = ' '.join(['CDLI', doc_dirname, title])
+                work.title = title
+
                 os.makedirs(doc_path, exist_ok=True)
                 with io.open(os.path.join(doc_path, '__cts__.xml'),
                              encoding='utf-8',
                              mode='w') as f:
-                    f.write(f'''<ti:work
-  xmlns:ti="http://chs.harvard.edu/xmlns/cts"
-  groupUrn="urn:cts:cdli:test"
-       urn="{urn}"
-  xml:lang="{lang}">
-  <ti:title xml:lang="akk">{atf2tei.escape(title)}</ti:title>
-  <ti:edition
-    workUrn="{urn}"
-        urn="{urn}.{lang}"
-  >
-    <ti:label xml:lang="en">
-      CDLI {doc_dirname} {atf2tei.escape(title)}
-    </ti:label>
-    <ti:description xml:lang="en">Test doc converted from atf.</ti:description>
-  </ti:edition>
-</ti:work>
-''')
+                    f.write(str(work))
+
                 with io.open(doc_filename, encoding='utf-8', mode='w') as f:
                     f.write(xml)
