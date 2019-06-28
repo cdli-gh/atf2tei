@@ -62,7 +62,7 @@ if __name__ == '__main__':
                 doc_basename = urn.split(':')[-1]
                 doc_dirname = doc_basename.split('.')[-1]
                 doc_path = os.path.join(data_path, doc_dirname)
-                doc_filename = os.path.join(doc_path, doc_basename + '.xml')
+                doc_filename = os.path.join(doc_path, doc_basename + '.' + lang + '.xml')
                 print('-- Writing', urn, lang, 'to', doc_filename)
                 os.makedirs(doc_path, exist_ok=True)
                 with io.open(os.path.join(doc_path, '__cts__.xml'),
