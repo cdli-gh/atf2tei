@@ -13,7 +13,6 @@ def segmentor(fp):
             print('-- New atf record: ', line.strip())
             # Start of a new record. Flush the old one, if any.
             if atf and sync:
-                print('-- Yielding accumulated data.')
                 yield atf
             atf = line
             sync = True
