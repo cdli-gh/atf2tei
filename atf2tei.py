@@ -80,11 +80,10 @@ def convert(atf_text):
             else:
                 result += '    <div>\n' \
                          f'<!-- {type(section).__name__}: {section} -->\n'
-            offset = 1
-            for index, line in enumerate(section.children):
+            for line in section.children:
                 if isinstance(line, Line):
                     text = normalize_transliteration(line.words)
-                    result += f'      <l n="{index + offset}">{text}</l>\n'
+                    result += f'      <l n="{line.label}">{text}</l>\n'
                     # Older pyoracc parses interlinear translatsions
                     # as notes. Remember them for serialization below.
                     for note in line.notes:
@@ -95,12 +94,13 @@ def convert(atf_text):
                             # this with the primary object's language.
                             if lang == 'ts':
                                 lang == atf.text.language
+                            tr_line = Line(line.label)
+                            tr_line.words = text.strip().split()
                             if lang not in translations:
                                 translations[lang] = []
-                            translations[lang].append(text.strip())
+                            translations[lang].append(tr_line)
                 else:
                     result += f'      <!-- {type(line).__name__}: {line} -->\n'
-            offset += len(section.children)
             result += '    </div>\n'
         result += '  </div>\n'
     result += '  </div>\n'
@@ -113,27 +113,26 @@ def convert(atf_text):
             # Skip anything which is not a translation for this pass.
             if not isinstance(section, Translation):
                 continue
-            offset = 1
             for surface in section.children:
                 result += f'      <div type="textpart" ' \
                           f'n="{surface.objecttype}">\n'
                 if isinstance(surface, OraccObject):
-                    for index, line in enumerate(surface.children):
+                    for line in surface.children:
                         if isinstance(line, Line):
                             text = ' '.join(line.words)
                             result += '        ' \
-                                      f'<l n="{index + offset}">{text}</l>\n'
+                                      f'<l n="{line.label}">{text}</l>\n'
                         else:
                             result += '        <!-- ' \
                                       f'{type(line).__name__}: {line} -->\n'
-                    offset += len(section.children)
                     result += '      </div>\n'
         result += '    </div>\n'
     result += '  </div>\n'
     for lang, translation in translations.items():
         result += f'  <div type="translation" xml:lang="{lang}">\n'
-        for index, line in enumerate(translation):
-            result += f'    <l n="{index + 1}">{escape(line)}</l>\n'
+        for line in translation:
+            text = ' '.join(line.words)
+            result += f'    <l n="{line.label}">{escape(text)}</l>\n'
         result += '  </div>\n'
     result += '''
 </body>
