@@ -162,9 +162,9 @@ def normalize_transliteration(words):
         '''XML-escape the result.'''
         word = escape(word)
         '''Convert markup to tei elements.'''
-        word = re.sub(r'{([^{}]+)}', r'<hi rend="superscript">\1</hi>', word)
-        word = re.sub(r'_([\w<{(\|.]+)', r'<emph rend="small-caps">\1', word)
-        word = re.sub(r'([\w)}>\|.]+)_', r'\1</emph>', word)
+        word = re.sub(r'{([^{}]+)}', r'<c type="determinative">\1</c>', word)
+        word = re.sub(r'_([\w<{(\|.]+)', r'<c type="sign" subtype="logo">\1', word)
+        word = re.sub(r'([\w)}>\|.]+)_', r'\1</c>', word)
         result.append(word)
     return ' '.join(result)
 
