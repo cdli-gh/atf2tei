@@ -169,7 +169,7 @@ def normalize_transliteration(words):
                       r'<c type="sign" subtype="logo">\1',
                       word)
         word = re.sub(r'([\w)}>\|.]+)_', r'\1</c>', word)
-        result.append('<w>' + word + '</w>')
+        result.append(word)
     return ' '.join(result)
 
 
