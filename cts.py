@@ -60,6 +60,7 @@ class Work:
             xml.set('xml:lang', self.language)
         title = ET.SubElement(xml, 'ti:title')
         title.text = self.title
+        title.set('xml:lang', 'eng')
         edition = ET.SubElement(xml, 'ti:edition')
         if self.group_urn:
             xml.set('groupUrn', self.group_urn)
@@ -70,6 +71,7 @@ class Work:
         label = ET.SubElement(edition, 'ti:label')
         if self.label:
             label.text = self.label
+            label.set('xml:lang', 'eng')
         description = ET.SubElement(edition, 'ti:description')
         if self.description:
             description.text = self.description
