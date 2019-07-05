@@ -18,10 +18,8 @@ project in 2019.
 
 ## Getting Started
 
-    ```
     pipenv install
     pipenv run python atf2tei.py SIL-034.atf
-    ```
 
 The first line sets up a python virtual environment and installs
 the dependencies. It only needs to be run once.
