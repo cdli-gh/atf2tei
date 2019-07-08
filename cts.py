@@ -75,4 +75,5 @@ class Work:
         description = ET.SubElement(edition, 'ti:description')
         if self.description:
             description.text = self.description
+            description.set('xml:lang', 'eng')
         return xml
