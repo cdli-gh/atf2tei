@@ -5,6 +5,7 @@ from xml.dom.minidom import parseString
 
 namespace = 'http://www.tei-c.org/ns/1.0'
 
+
 class Document:
     '''Represents a TEI document.'''
 
