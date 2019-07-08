@@ -30,6 +30,9 @@ if __name__ == '__main__':
     from xml.dom.minidom import parseString
     from xml.parsers.expat import ExpatError
 
+    failed_parse = []
+    failed_export = []
+    success = 0
     data_path = 'data/test'
     os.makedirs(data_path, exist_ok=True)
     textgroup = cts.TextGroup()
@@ -44,20 +47,26 @@ if __name__ == '__main__':
         print('-- Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
             for atf in segmentor(f):
-                xml = atf2tei.convert(atf)
+                try:
+                    xml = atf2tei.convert(atf)
+                except Exception as e:
+                    print('Error converting ATF:')
+                    print(atf)
+                    failed_parse.append(atf)
+                    continue
                 try:
                     dom = parseString(xml)
-                except ExpatError as e:
+                except Exception as e:
                     print('Error parsing converted XML:')
                     print(xml)
-                    raise e
+                    failed_export.append(xml)
+                    continue
                 texts = dom.getElementsByTagName('text')
                 assert len(texts) == 1
                 text = texts[0]
                 urn = text.getAttribute('n')
                 lang = text.getAttribute('xml:lang')
                 title = dom.getElementsByTagName('title')[0].firstChild.data
-                print('-- title:', title)
 
                 doc_basename = urn.split(':')[-1]
                 doc_dirname = doc_basename.split('.')[-1]
@@ -82,3 +91,14 @@ if __name__ == '__main__':
 
                 with io.open(doc_filename, encoding='utf-8', mode='w') as f:
                     f.write(xml)
+                success += 1
+        failed = len(failed_parse) + len(failed_export)
+        ratio = 1 - failed/(failed + success)
+        width = 50
+        progress_bar = f"[{'='*int(width*ratio)}>{' '*int(width*(1-ratio))}]"
+        print(f'  {progress_bar} {ratio * 100:3n}% success.')
+        if failed_parse:
+            print('Error:', len(failed_parse), 'records did not convert.')
+        if failed_export:
+            print('Error:', len(failed_export), 'records did not serialize.')
+        print(f'Successfully converted {success} records from ATF.')
