@@ -81,9 +81,12 @@ if __name__ == '__main__':
     import os
     import sys
 
+    from concurrent import futures
+    from datetime import datetime
     from xml.dom.minidom import parseString
     from xml.parsers.expat import ExpatError
 
+    start = datetime.utcnow()
     failed_parse = []
     failed_export = []
     success = 0
@@ -97,14 +100,25 @@ if __name__ == '__main__':
                  mode='w') as f:
         f.write(str(textgroup))
 
+    try:
+        index = sys.argv.index('--workers')
+        del sys.argv[index]
+        workers = int(sys.argv[index])
+        del sys.argv[index]
+    except ValueError:
+        workers = None
+
     for filename in sys.argv[1:]:
         print('-- Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
-            for atf in segmentor(f):
-                s, p, e = convert(atf, data_path)
-                success += s
-                failed_parse.extend(p)
-                failed_export.extend(e)
+            with futures.ProcessPoolExecutor(max_workers=workers) as exe:
+                jobs = [exe.submit(convert, atf, data_path)
+                        for atf in segmentor(f)]
+                for job in futures.as_completed(jobs):
+                    s, p, e = job.result()
+                    success += s
+                    failed_parse.extend(p)
+                    failed_export.extend(e)
         failed = len(failed_parse) + len(failed_export)
         ratio = 1 - failed/(failed + success)
         width = 50
@@ -114,4 +128,7 @@ if __name__ == '__main__':
             print('Error:', len(failed_parse), 'records did not convert.')
         if failed_export:
             print('Error:', len(failed_export), 'records did not serialize.')
-        print(f'Successfully converted {success} records from ATF.')
+        elapsed = datetime.utcnow() - start
+        seconds = elapsed.seconds + elapsed.microseconds*1e-6
+        print(f'Successfully converted {success} records from ATF',
+              f'in {seconds:0.3f} seconds.')
