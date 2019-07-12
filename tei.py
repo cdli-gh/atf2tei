@@ -71,8 +71,8 @@ class Header:
 class TextPart:
     '''Represents an Epidoc text division.'''
 
-    def __init__(self):
-        self.name = None
+    def __init__(self, name=None):
+        self.name = name
         self.type = 'textpart'
         self.children = []
 

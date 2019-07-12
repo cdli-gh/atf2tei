@@ -10,6 +10,8 @@ from pyoracc.model.line import Line
 from pyoracc.model.oraccobject import OraccObject
 from pyoracc.model.translation import Translation
 
+import tei
+
 verbose = False
 
 
@@ -20,23 +22,12 @@ def convert(atf_text):
     atf = AtfFile(atf_text, 'cdli', False)
     if verbose:
         print("Parsed {} -- {}".format(atf.text.code, atf.text.description))
-    result = '''<?xml version="1.0" encoding="UTF-8"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0">
-
-<teiHeader>
-<fileDesc>
-  <titleStmt>
-    <title>{description}</title>
-  </titleStmt>
-  <publicationStmt>
-    <p>Converted from ATF by atf2tei.</p>
-  </publicationStmt>
-  <sourceDesc>
-    <bibl>
-      <title>CDLI <idno type="CDLI">{code}</idno></title>
-    </bibl>
-  </sourceDesc>
-</fileDesc>
+    doc = tei.Document()
+    doc.header = tei.Header()
+    doc.header.title = atf.text.description
+    doc.header.cdli_code = atf.text.code
+    '<?xml version="1.0" encoding="UTF-8"?>'
+    encodingDesc = '''
 <encodingDesc>
   <refsDecl n="CTS">
     <cRefPattern n="line"
@@ -58,37 +49,38 @@ def convert(atf_text):
   </refsDecl>
 </encodingDesc>
 </teiHeader>
-'''.format(description=escape(atf.text.description),
-           code=escape(atf.text.code))
+'''
     urn = f'urn:cts:cdli:test.{atf.text.code}'
-    result += f'<text n="{urn}"'
+    # Append n={urn} xml:lang={atf.text.language} to the text element.
+    f'<text n="{urn}"'
     if atf.text.language:
-        result += f' xml:lang="{atf.text.language}"'
-    result += '>\n'
-    result += '<body>\n'
+        f'xml:lang="{atf.text.language}"'
     translations = {}
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
-    result += '  <div type="edition">\n'
+    edition = tei.Edition()
     for item in objects:
-        result += f'  <div type="textpart" n="{item.objecttype}">\n'
+        part = tei.TextPart(item.objecttype)
+        edition.append(part)
         for section in item.children:
             if isinstance(section, OraccObject):
-                result += '    <div type="textpart"' \
-                          f' n="{section.objecttype}">\n'
+                div = tei.TextPart(section.objecttype)
+                part.append(div)
             elif isinstance(section, Translation):
                 # Handle in another pass.
                 continue
             else:
-                result += '    <div>\n' \
-                         f'<!-- {type(section).__name__}: {section} -->\n'
-            for line in section.children:
-                if isinstance(line, Line):
-                    text = normalize_transliteration(line.words)
-                    result += f'      <l n="{line.label}">{text}</l>\n'
+                # Skip unknown section type.
+                f'<!-- {type(section).__name__}: {section} -->'
+                continue
+            for obj in section.children:
+                if isinstance(obj, Line):
+                    text = normalize_transliteration(obj.words)
+                    line = tei.Line(obj.label, text)
+                    div.append(line)
                     # Older pyoracc parses interlinear translatsions
                     # as notes. Remember them for serialization below.
-                    for note in line.notes:
+                    for note in obj.notes:
                         if note.content.startswith('tr.'):
                             lang, text = note.content.split(':', maxsplit=1)
                             _, lang = lang.split('.')
@@ -96,51 +88,46 @@ def convert(atf_text):
                             # this with the primary object's language.
                             if lang == 'ts':
                                 lang == atf.text.language
-                            tr_line = Line(line.label)
+                            tr_line = Line(obj.label)
                             tr_line.words = text.strip().split()
                             if lang not in translations:
                                 translations[lang] = []
                             translations[lang].append(tr_line)
                 else:
-                    result += f'      <!-- {type(line).__name__}: {line} -->\n'
-            result += '    </div>\n'
-        result += '  </div>\n'
-    result += '  </div>\n'
+                    # Skip unknown object type.
+                    f'<!-- {type(line).__name__}: {line} -->'
+                    continue
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
-    result += '  <div type="translation">\n'
+    translation = tei.Translation()
     for item in objects:
-        result += f'    <div type="textpart" n="{item.objecttype}">\n'
+        part = tei.TextPart(item.objecttype)
+        translation.append(part)
         for section in item.children:
             # Skip anything which is not a translation for this pass.
             if not isinstance(section, Translation):
                 continue
             for surface in section.children:
-                result += f'      <div type="textpart" ' \
-                          f'n="{surface.objecttype}">\n'
                 if isinstance(surface, OraccObject):
-                    for line in surface.children:
-                        if isinstance(line, Line):
-                            text = ' '.join(line.words)
-                            result += '        ' \
-                                      f'<l n="{line.label}">{text}</l>\n'
+                    div = tei.TextPart(surface.objecttype)
+                    part.append(div)
+                    for obj in surface.children:
+                        if isinstance(obj, Line):
+                            text = ' '.join(obj.words)
+                            line = tei.Line(obj.label, text)
+                            div.append(line)
                         else:
-                            result += '        <!-- ' \
-                                      f'{type(line).__name__}: {line} -->\n'
-                    result += '      </div>\n'
-        result += '    </div>\n'
-    result += '  </div>\n'
-    for lang, translation in translations.items():
-        result += f'  <div type="translation" xml:lang="{lang}">\n'
-        for line in translation:
-            text = ' '.join(line.words)
-            result += f'    <l n="{line.label}">{escape(text)}</l>\n'
-        result += '  </div>\n'
-    result += '''
-</body>
-</text>
-</TEI>'''
-    return result
+                            # Skip unknown object type.
+                            f'<!-- {type(line).__name__}: {line} -->\n'
+                            continue
+    for lang, tr_lines in translations.items():
+        translation = tei.Translation()
+        translation.language = lang
+        for tr_line in tr_lines:
+            text = ' '.join(tr_line.words)
+            line = tei.Line(tr_line.label, text)
+            translation.append(line)
+    return doc
 
 
 def normalize_transliteration(words):
