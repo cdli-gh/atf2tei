@@ -10,7 +10,7 @@ def segmentor(fp):
     sync = False
     for line in fp.readlines():
         if line.startswith('&'):
-            print('-- New atf record: ', line.strip())
+            print('New atf record: ', line.strip())
             # Start of a new record. Flush the old one, if any.
             if atf and sync:
                 yield atf
@@ -53,7 +53,7 @@ def convert(atf, data_path):
     doc_path = os.path.join(data_path, doc_dirname)
     doc_filename = os.path.join(
             doc_path, doc_basename + '.' + lang + '.xml')
-    print('-- Writing', urn, lang, 'to', doc_filename)
+    print('Writing', urn, lang, 'to', doc_filename)
 
     work = cts.Work()
     work.group_urn = textgroup.urn
@@ -101,7 +101,7 @@ if __name__ == '__main__':
         f.write(str(textgroup))
 
     for filename in sys.argv[1:]:
-        print('-- Parsing:', filename)
+        print('Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
             with futures.ProcessPoolExecutor() as exe:
                 jobs = [exe.submit(convert, atf, data_path)
