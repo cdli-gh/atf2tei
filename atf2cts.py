@@ -111,11 +111,6 @@ if __name__ == '__main__':
                     success += s
                     failed_parse.extend(p)
                     failed_export.extend(e)
-        failed = len(failed_parse) + len(failed_export)
-        ratio = 1 - failed/(failed + success)
-        width = 50
-        progress_bar = f"[{'='*int(width*ratio)}>{' '*int(width*(1-ratio))}]"
-        print(f'  {progress_bar} {ratio * 100:3n}% success.')
         if failed_parse:
             print('Error:', len(failed_parse), 'records did not convert.')
         if failed_export:
