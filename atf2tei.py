@@ -69,7 +69,7 @@ def convert(atf_text):
     translations = {}
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
-    result += '''  <div type="edition">\n'''
+    result += '  <div type="edition">\n'
     for item in objects:
         result += f'  <div type="textpart" n="{item.objecttype}">\n'
         for section in item.children:
@@ -144,11 +144,11 @@ def convert(atf_text):
 
 
 def normalize_transliteration(words):
-    '''Convert a sequence of words from atf to standard formatting.'''
+    'Convert a sequence of words from atf to standard formatting.'
     # See http://oracc.org/doc/help/editinginatf/primer/inlinetutorial/
     result = []
     for word in words:
-        '''Convert digraphs to corresponding unicode characters.'''
+        'Convert digraphs to corresponding unicode characters.'
         word = re.sub(r'sz', 'š', word)     # \u0161
         word = re.sub(r'SZ', 'Š', word)     # \u0160
         word = re.sub(r's,', 'ṣ', word)     # \u1E63
@@ -161,9 +161,9 @@ def normalize_transliteration(words):
         word = re.sub(r'H,', 'Ḫ', word)     # \u1E2A
         word = re.sub(r'j', 'ŋ', word)      # \u014B
         word = re.sub(r'J', 'Ŋ', word)      # \u014A
-        '''XML-escape the result.'''
+        'XML-escape the result.'
         word = escape(word)
-        '''Convert markup to tei elements.'''
+        'Convert markup to tei elements.'
         word = re.sub(r'{([^{}]+)}',
                       r'<c type="determinative">\1</c>',
                       word)
