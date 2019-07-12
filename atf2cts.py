@@ -84,7 +84,6 @@ if __name__ == '__main__':
     from concurrent import futures
     from datetime import datetime
     from xml.dom.minidom import parseString
-    from xml.parsers.expat import ExpatError
 
     start = datetime.utcnow()
     failed_parse = []
