@@ -69,7 +69,7 @@ class TextPart:
 
     @property
     def xml(self):
-        'Construct an XML ElemenTree representation.'
+        'Construct an XML ElementTree representation.'
         xml = ET.Element('div')
         xml.set('type', self.type)
         if self.name:
@@ -103,8 +103,21 @@ class Translation(TextPart):
         return xml
 
 
-class Text:
-    '''Represents a TEI Text body.'''
+class Line:
+    '''Represents a line of text.'''
+    def __init__(self, ref, content):
+        self.ref = ref
+        self.content = content
 
-    def __init__(self):
-        self.type = 'edition'
+    def __str__(self):
+        'Serialized XML representation as a string.'
+        serialized = ET.tostring(self.xml, encoding='unicode')
+        return parseString(serialized).toprettyxml()
+
+    @property
+    def xml(self):
+        'Construct an XML ElementTree representation.'
+        xml = ET.Element('l')
+        xml.set('n', self.ref)
+        xml.text = self.content
+        return xml
