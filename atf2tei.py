@@ -32,7 +32,9 @@ def convert(atf_text):
     <p>Converted from ATF by atf2tei.</p>
   </publicationStmt>
   <sourceDesc>
-    <idno type="CDLI">{code}</idno>
+    <bibl>
+      <title>CDLI <idno type="CDLI">{code}</idno></title>
+    </bibl>
   </sourceDesc>
 </fileDesc>
 <encodingDesc>
