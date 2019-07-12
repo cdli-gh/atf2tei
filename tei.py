@@ -81,6 +81,10 @@ class TextPart:
         serialized = ET.tostring(self.xml, encoding='unicode')
         return parseString(serialized).toprettyxml()
 
+    def append(self, obj):
+        'Append a sub-element to the list of children.'
+        self.children.append(obj)
+
     @property
     def xml(self):
         'Construct an XML ElementTree representation.'
