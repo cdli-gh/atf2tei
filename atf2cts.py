@@ -100,18 +100,10 @@ if __name__ == '__main__':
                  mode='w') as f:
         f.write(str(textgroup))
 
-    try:
-        index = sys.argv.index('--workers')
-        del sys.argv[index]
-        workers = int(sys.argv[index])
-        del sys.argv[index]
-    except ValueError:
-        workers = None
-
     for filename in sys.argv[1:]:
         print('-- Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
-            with futures.ProcessPoolExecutor(max_workers=workers) as exe:
+            with futures.ProcessPoolExecutor() as exe:
                 jobs = [exe.submit(convert, atf, data_path)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
