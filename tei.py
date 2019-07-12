@@ -37,6 +37,8 @@ class Header:
 
     def __init__(self):
         self.title = None
+        self.publication = 'Converted from ATF by atf2tei.'
+        self.cdli_code = None
 
     def __str__(self):
         'Serialized XML representation as a string.'
@@ -51,6 +53,18 @@ class Header:
         titleStmt = ET.SubElement(fileDesc, 'titleStmt')
         title = ET.SubElement(titleStmt, 'title')
         title.text = self.title
+        if self.publication:
+            publicationStmt = ET.SubElement(fileDesc, 'publicationStmt')
+            p = ET.SubElement(publicationStmt, 'p')
+            p.text = self.publication
+        if self.cdli_code:
+            sourceDesc = ET.SubElement(fileDesc, 'sourceDesc')
+            bibl = ET.SubElement(sourceDesc, 'bibl')
+            title = ET.SubElement(bibl, 'title')
+            title.text = 'CDLI'
+            idno = ET.SubElement(title, 'idno')
+            idno.set('type', 'CDLI')
+            idno.text = self.cdli_code
         return xml
 
 
