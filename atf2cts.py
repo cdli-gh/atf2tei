@@ -111,11 +111,11 @@ if __name__ == '__main__':
                     success += s
                     failed_parse.extend(p)
                     failed_export.extend(e)
-        if failed_parse:
-            print('Error:', len(failed_parse), 'records did not convert.')
-        if failed_export:
-            print('Error:', len(failed_export), 'records did not serialize.')
-        elapsed = datetime.utcnow() - start
-        seconds = elapsed.seconds + elapsed.microseconds*1e-6
-        print(f'Successfully converted {success} records from ATF',
-              f'in {seconds:0.3f} seconds.')
+    if failed_parse:
+        print('Error:', len(failed_parse), 'records did not convert.')
+    if failed_export:
+        print('Error:', len(failed_export), 'records did not serialize.')
+    elapsed = datetime.utcnow() - start
+    seconds = elapsed.seconds + elapsed.microseconds*1e-6
+    print(f'Successfully converted {success} records from ATF',
+          f'in {seconds:0.3f} seconds.')
