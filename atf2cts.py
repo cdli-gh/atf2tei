@@ -3,6 +3,7 @@
 from xml.dom.minidom import parseString
 
 import atf2tei
+import tei
 import cts
 
 
@@ -24,25 +25,31 @@ def segmentor(fp):
         yield atf
 
 
-def convert(atf, data_path):
-    failed_parse = []
-    failed_export = []
-    success = 0
+class Success:
+    'Report successful conversion.'
+    pass
 
+
+class Failure:
+    'Report a failed conversion.'
+    def __init__(self, body=None, exception=None):
+        self.body = body
+        self.exception = exception
+
+
+def convert(atf, data_path):
     try:
         doc = atf2tei.convert(atf)
     except Exception as e:
         print('Error converting ATF:', e)
         print(atf)
-        failed_parse.append(atf)
-        return (success, failed_parse, failed_export)
+        return Failure(atf, e)
     try:
         dom = parseString(str(doc))
     except Exception as e:
         print('Error parsing converted XML:', e)
         print(doc)
-        failed_export.append(doc)
-        return (success, failed_parse, failed_export)
+        return Failure(doc, e)
     texts = dom.getElementsByTagName('text')
     assert len(texts) == 1
     text = texts[0]
@@ -73,9 +80,8 @@ def convert(atf, data_path):
 
     with io.open(doc_filename, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
-    success += 1
 
-    return (success, failed_parse, failed_export)
+    return Success()
 
 
 if __name__ == '__main__':
@@ -107,10 +113,13 @@ if __name__ == '__main__':
                 jobs = [exe.submit(convert, atf, data_path)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
-                    s, p, e = job.result()
-                    success += s
-                    failed_parse.extend(p)
-                    failed_export.extend(e)
+                    r = job.result()
+                    if isinstance(r, Success):
+                        success += 1
+                    elif isinstance(r.body, str):
+                        failed_parse.append(r)
+                    elif isinstance(r.body, tei.Document):
+                        failed_export.append(r)
     if failed_parse:
         print('Error:', len(failed_parse), 'records did not convert.')
     if failed_export:
