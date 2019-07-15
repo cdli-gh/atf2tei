@@ -12,6 +12,7 @@ class Document:
     def __init__(self):
         self.header = None
         self.parts = []
+        self.language = None
 
     def __str__(self):
         'Serialized XML representation as a string.'

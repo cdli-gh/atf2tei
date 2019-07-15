@@ -43,19 +43,13 @@ def convert(atf, data_path):
         print('Error parsing converted XML:', e)
         print(doc)
         return export_failed
-    texts = dom.getElementsByTagName('text')
-    assert len(texts) == 1
-    text = texts[0]
-    urn = text.getAttribute('n')
-    lang = text.getAttribute('xml:lang')
-    title = dom.getElementsByTagName('title')[0].firstChild.data
 
-    doc_basename = urn.split(':')[-1]
-    doc_dirname = doc_basename.split('.')[-1]
-    doc_path = os.path.join(data_path, doc_dirname)
-    doc_filename = os.path.join(
-            doc_path, doc_basename + '.' + lang + '.xml')
-    print('Writing', urn, lang, 'to', doc_filename)
+    # Fetch title
+    urn = f'urn:cts:cdli:test.{doc.header.cdli_code}'
+    doc.groupUrn = urn
+
+    group_filename = groupUrn.split(':')[-1]
+    group_path = os.path.join(data_path, group_dirname)
 
     work = cts.Work()
     work.group_urn = textgroup.urn
@@ -65,13 +59,16 @@ def convert(atf, data_path):
     work.label = ' '.join(['CDLI', doc_dirname, title])
     work.title = title
 
+    doc_filename = urn.split(':')[-1] + '.xml'
+    doc_path = os.path.join(group_path, doc_filename)
+    print('Writing', urn, doc.language, 'to', doc_filename)
     os.makedirs(doc_path, exist_ok=True)
     with io.open(os.path.join(doc_path, '__cts__.xml'),
                  encoding='utf-8',
                  mode='w') as f:
         f.write(str(work))
 
-    with io.open(doc_filename, encoding='utf-8', mode='w') as f:
+    with io.open(doc_path, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
 
     return success

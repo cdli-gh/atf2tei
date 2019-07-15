@@ -23,6 +23,7 @@ def convert(atf_text):
     if verbose:
         print("Parsed {} -- {}".format(atf.text.code, atf.text.description))
     doc = tei.Document()
+    doc.language = atf.text.language
     doc.header = tei.Header()
     doc.header.title = atf.text.description
     doc.header.cdli_code = atf.text.code
