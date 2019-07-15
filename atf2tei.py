@@ -59,6 +59,7 @@ def convert(atf_text):
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
     edition = tei.Edition()
+    doc.parts.append(edition)
     for item in objects:
         part = tei.TextPart(item.objecttype)
         edition.append(part)
@@ -99,7 +100,9 @@ def convert(atf_text):
                     continue
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
-    translation = tei.Translation()
+    if objects:
+        translation = tei.Translation()
+        doc.parts.append(translation)
     for item in objects:
         part = tei.TextPart(item.objecttype)
         translation.append(part)
@@ -123,6 +126,7 @@ def convert(atf_text):
     for lang, tr_lines in translations.items():
         translation = tei.Translation()
         translation.language = lang
+        doc.parts.append(translation)
         for tr_line in tr_lines:
             text = ' '.join(tr_line.words)
             line = tei.Line(tr_line.label, text)
@@ -167,5 +171,5 @@ if __name__ == '__main__':
     import sys
     for filename in sys.argv[1:]:
         with io.open(filename, encoding='utf-8') as f:
-            xml = convert(f.read())
-            print(xml)
+            doc = convert(f.read())
+            print(doc)

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from xml.dom.minidom import parseString
+
 import atf2tei
 import cts
 
@@ -28,18 +30,18 @@ def convert(atf, data_path):
     success = 0
 
     try:
-        xml = atf2tei.convert(atf)
+        doc = atf2tei.convert(atf)
     except Exception as e:
         print('Error converting ATF:', e)
         print(atf)
         failed_parse.append(atf)
         return (success, failed_parse, failed_export)
     try:
-        dom = parseString(xml)
+        dom = parseString(str(doc))
     except Exception as e:
         print('Error parsing converted XML:', e)
-        print(xml)
-        failed_export.append(xml)
+        print(doc)
+        failed_export.append(doc)
         return (success, failed_parse, failed_export)
     texts = dom.getElementsByTagName('text')
     assert len(texts) == 1
@@ -70,7 +72,7 @@ def convert(atf, data_path):
         f.write(str(work))
 
     with io.open(doc_filename, encoding='utf-8', mode='w') as f:
-        f.write(xml)
+        f.write(str(doc))
     success += 1
 
     return (success, failed_parse, failed_export)
@@ -83,7 +85,6 @@ if __name__ == '__main__':
 
     from concurrent import futures
     from datetime import datetime
-    from xml.dom.minidom import parseString
 
     start = datetime.utcnow()
     failed_parse = []
