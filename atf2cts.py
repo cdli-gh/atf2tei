@@ -10,7 +10,7 @@ def segmentor(fp):
     sync = False
     for line in fp.readlines():
         if line.startswith('&'):
-            print('-- New atf record: ', line.strip())
+            print('New atf record: ', line.strip())
             # Start of a new record. Flush the old one, if any.
             if atf and sync:
                 yield atf
@@ -53,7 +53,7 @@ def convert(atf, data_path):
     doc_path = os.path.join(data_path, doc_dirname)
     doc_filename = os.path.join(
             doc_path, doc_basename + '.' + lang + '.xml')
-    print('-- Writing', urn, lang, 'to', doc_filename)
+    print('Writing', urn, lang, 'to', doc_filename)
 
     work = cts.Work()
     work.group_urn = textgroup.urn
@@ -81,9 +81,11 @@ if __name__ == '__main__':
     import os
     import sys
 
+    from concurrent import futures
+    from datetime import datetime
     from xml.dom.minidom import parseString
-    from xml.parsers.expat import ExpatError
 
+    start = datetime.utcnow()
     failed_parse = []
     failed_export = []
     success = 0
@@ -98,20 +100,21 @@ if __name__ == '__main__':
         f.write(str(textgroup))
 
     for filename in sys.argv[1:]:
-        print('-- Parsing:', filename)
+        print('Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
-            for atf in segmentor(f):
-                s, p, e = convert(atf, data_path)
-                success += s
-                failed_parse.extend(p)
-                failed_export.extend(e)
-        failed = len(failed_parse) + len(failed_export)
-        ratio = 1 - failed/(failed + success)
-        width = 50
-        progress_bar = f"[{'='*int(width*ratio)}>{' '*int(width*(1-ratio))}]"
-        print(f'  {progress_bar} {ratio * 100:3n}% success.')
-        if failed_parse:
-            print('Error:', len(failed_parse), 'records did not convert.')
-        if failed_export:
-            print('Error:', len(failed_export), 'records did not serialize.')
-        print(f'Successfully converted {success} records from ATF.')
+            with futures.ProcessPoolExecutor() as exe:
+                jobs = [exe.submit(convert, atf, data_path)
+                        for atf in segmentor(f)]
+                for job in futures.as_completed(jobs):
+                    s, p, e = job.result()
+                    success += s
+                    failed_parse.extend(p)
+                    failed_export.extend(e)
+    if failed_parse:
+        print('Error:', len(failed_parse), 'records did not convert.')
+    if failed_export:
+        print('Error:', len(failed_export), 'records did not serialize.')
+    elapsed = datetime.utcnow() - start
+    seconds = elapsed.seconds + elapsed.microseconds*1e-6
+    print(f'Successfully converted {success} records from ATF',
+          f'in {seconds:0.3f} seconds.')
