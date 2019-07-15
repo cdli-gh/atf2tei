@@ -3,7 +3,6 @@
 from xml.dom.minidom import parseString
 
 import atf2tei
-import tei
 import cts
 
 
@@ -25,31 +24,25 @@ def segmentor(fp):
         yield atf
 
 
-class Success:
-    'Report successful conversion.'
-    pass
-
-
-class Failure:
-    'Report a failed conversion.'
-    def __init__(self, body=None, exception=None):
-        self.body = body
-        self.exception = exception
-
-
 def convert(atf, data_path):
+    '''Convert an atf string and write it out as XML.
+
+    returns a (success, parse_failed, export_failed) flag tuple.'''
+    success = (True, False, False)
+    parse_failed = (False, True, False)
+    export_failed = (False, False, True)
     try:
         doc = atf2tei.convert(atf)
     except Exception as e:
         print('Error converting ATF:', e)
         print(atf)
-        return Failure(atf, e)
+        return parse_failed
     try:
         dom = parseString(str(doc))
     except Exception as e:
         print('Error parsing converted XML:', e)
         print(doc)
-        return Failure(doc, e)
+        return export_failed
     texts = dom.getElementsByTagName('text')
     assert len(texts) == 1
     text = texts[0]
@@ -81,7 +74,7 @@ def convert(atf, data_path):
     with io.open(doc_filename, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
 
-    return Success()
+    return success
 
 
 if __name__ == '__main__':
@@ -95,7 +88,10 @@ if __name__ == '__main__':
     start = datetime.utcnow()
     failed_parse = []
     failed_export = []
-    success = 0
+    successful = 0
+    parse_failures = 0
+    export_failures = 0
+
     data_path = 'data/test'
     os.makedirs(data_path, exist_ok=True)
     textgroup = cts.TextGroup()
@@ -113,18 +109,15 @@ if __name__ == '__main__':
                 jobs = [exe.submit(convert, atf, data_path)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
-                    r = job.result()
-                    if isinstance(r, Success):
-                        success += 1
-                    elif isinstance(r.body, str):
-                        failed_parse.append(r)
-                    elif isinstance(r.body, tei.Document):
-                        failed_export.append(r)
-    if failed_parse:
-        print('Error:', len(failed_parse), 'records did not convert.')
+                    s, p, e = job.result()
+                    successful += s
+                    parse_failures += p
+                    export_failures += e
+    if parse_failures:
+        print('Error:', parse_failures, 'records did not convert.')
     if failed_export:
-        print('Error:', len(failed_export), 'records did not serialize.')
+        print('Error:', export_failures, 'records did not serialize.')
     elapsed = datetime.utcnow() - start
     seconds = elapsed.seconds + elapsed.microseconds*1e-6
-    print(f'Successfully converted {success} records from ATF',
+    print(f'Successfully converted {successful} records from ATF',
           f'in {seconds:0.3f} seconds.')
