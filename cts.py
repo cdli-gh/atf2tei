@@ -1,10 +1,11 @@
 '''Models for generating Canonical Text Services index files.'''
 
 import xml.etree.ElementTree as ET
-from xml.dom.minidom import parseString
+
+from tei import XMLSerializer
 
 
-class TextGroup:
+class TextGroup(XMLSerializer):
     '''Represents a textgroup element.'''
 
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
@@ -12,11 +13,6 @@ class TextGroup:
     def __init__(self):
         self.urn = None
         self.name = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
@@ -33,7 +29,7 @@ class TextGroup:
         return xml
 
 
-class Work:
+class Work(XMLSerializer):
     '''Represents a TEI work.'''
 
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
@@ -45,11 +41,6 @@ class Work:
         self.title = None
         self.label = None
         self.description = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
