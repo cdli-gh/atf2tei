@@ -68,3 +68,36 @@ class Work(XMLSerializer):
             description.text = self.description
             description.set('xml:lang', 'eng')
         return xml
+
+
+class RefsDecl(XMLSerializer):
+    '''Produce the refsDecl subtree required by CTS guidelines.
+
+    Results are specific to the way we structure cuneiform
+    data from ATF.'''
+    levels = [
+        ('line', 3,
+            'This pattern references a specific line.'),
+        ('surface', 2,
+            'This pattern references an inscribed surface.'),
+        ('object', 1,
+            'This pattern references a specific artefact, usually a tablet.'),
+    ]
+
+    @property
+    def xml(self):
+        'Construct an XML ElementTree representation of member data.'
+        refsDecl = ET.Element('refsDecl')
+        refsDecl.set('n', 'CTS')
+        for name, count, description in self.levels:
+            pattern = ET.SubElement(refsDecl, 'cRefPattern')
+            pattern.set('n', name)
+            pattern.set('matchPattern', r'\.'.join([r'(\w+)'] * count))
+            xpath = '#xpath(/tei:TEI/tei:text/tei:body/tei:div'
+            for i in range(count):
+                xpath += f"/tei:div[@n='${i + 1}']"
+            xpath += ')'
+            pattern.set('replacementPattern', xpath)
+            p = ET.SubElement(pattern, 'p')
+            p.text = description
+        return refsDecl

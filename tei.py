@@ -56,6 +56,7 @@ class Header(XMLSerializer):
         self.title = None
         self.publication = 'Converted from ATF by atf2tei.'
         self.cdli_code = None
+        self.encodingDesc = None
 
     @property
     def xml(self):
@@ -77,6 +78,8 @@ class Header(XMLSerializer):
             idno = ET.SubElement(title, 'idno')
             idno.set('type', 'CDLI')
             idno.text = self.cdli_code
+        if self.encodingDesc:
+            xml.append(self.encodingDesc)
         return xml
 
 

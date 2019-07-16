@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 
 import atf2tei
@@ -54,6 +55,11 @@ def convert(atf, textgroup, data_path):
     work.title = doc.header.title
     work.label = f'CDLI {doc.header.cdli_code} {work.title}'
     work.description = 'Test doc converted from atf.'
+
+    # Add CTS refsDecl.
+    encodingDesc = ET.Element('encodingDesc')
+    encodingDesc.append(cts.RefsDecl().xml)
+    doc.header.encodingDesc = encodingDesc
 
     work_path = os.path.join(data_path, urn.split('.')[-1])
 
