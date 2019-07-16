@@ -6,7 +6,21 @@ from xml.dom.minidom import parseString
 namespace = 'http://www.tei-c.org/ns/1.0'
 
 
-class Document:
+class XMLSerializer:
+    '''Mixin for XML serialization.
+
+    Override the xml property to return an ElementTree representation
+    of the object's data. This class will provide a __str__ method
+    to serialize it in a uniform way.'''
+    xml = None
+
+    def __str__(self):
+        'Serialized XML representation as a string.'
+        serialized = ET.tostring(self.xml, encoding='unicode')
+        return parseString(serialized).toprettyxml()
+
+
+class Document(XMLSerializer):
     '''Represents a TEI document.'''
 
     def __init__(self):
@@ -14,11 +28,6 @@ class Document:
         self.parts = []
         self.language = None
         self.urn = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
@@ -39,18 +48,13 @@ class Document:
         return xml
 
 
-class Header:
+class Header(XMLSerializer):
     '''Represents a TEI Header.'''
 
     def __init__(self):
         self.title = None
         self.publication = 'Converted from ATF by atf2tei.'
         self.cdli_code = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
@@ -75,7 +79,7 @@ class Header:
         return xml
 
 
-class TextPart:
+class TextPart(XMLSerializer):
     '''Represents an Epidoc text division.
 
     Set the name attribute to book, chapter, obverse, etc.,
@@ -86,11 +90,6 @@ class TextPart:
         self.type = 'textpart'
         self.language = None
         self.children = []
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     def append(self, obj):
         'Append a sub-element to the list of children.'
@@ -131,16 +130,11 @@ class Translation(TextPart):
         self.type = 'translation'
 
 
-class Line:
+class Line(XMLSerializer):
     '''Represents a line of text.'''
     def __init__(self, ref, content):
         self.ref = ref
         self.content = content
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
