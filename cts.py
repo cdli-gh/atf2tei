@@ -39,12 +39,12 @@ class Work:
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
 
     def __init__(self):
-        self.group_urn = None
-        self.work_urn = None
+        self.groupUrn = None
+        self.workUrn = None
         self.language = None
-        self.description = None
-        self.label = None
         self.title = None
+        self.label = None
+        self.description = None
 
     def __str__(self):
         'Serialized XML representation as a string.'
