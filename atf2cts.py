@@ -70,7 +70,7 @@ def convert(atf, textgroup, data_path):
                  mode='w') as f:
         f.write(str(work))
 
-    doc_filename = urn.split(':')[-1] + '.xml'
+    doc_filename = urn.split(':')[-1] + '.' + doc.language + '.xml'
     doc_path = os.path.join(work_path, doc_filename)
     with io.open(doc_path, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
