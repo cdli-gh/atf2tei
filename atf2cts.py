@@ -67,9 +67,10 @@ def convert(atf, textgroup, data_path):
         f.write(str(work))
 
     # Set Edition urn per CTS epidoc guidelines.
+    editionUrn = f'{work.workUrn}.cdli-{work.language}'
     for obj in doc.parts:
         if isinstance(obj, tei.Edition):
-            obj.name = urn
+            obj.name = editionUrn
             obj.language = work.language
 
     # Add CTS refsDecl.
@@ -77,7 +78,7 @@ def convert(atf, textgroup, data_path):
     encodingDesc.append(cts.RefsDecl().xml)
     doc.header.encodingDesc = encodingDesc
 
-    doc_filename = urn.split(':')[-1] + '.' + doc.language + '.xml'
+    doc_filename = editionUrn.split(':')[-1] + '.xml'
     doc_path = os.path.join(work_path, doc_filename)
     with io.open(doc_path, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
