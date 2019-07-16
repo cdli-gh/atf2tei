@@ -76,11 +76,15 @@ class Header:
 
 
 class TextPart:
-    '''Represents an Epidoc text division.'''
+    '''Represents an Epidoc text division.
+
+    Set the name attribute to book, chapter, obverse, etc.,
+    whatever describes the division.'''
 
     def __init__(self, name=None):
         self.name = name
         self.type = 'textpart'
+        self.language = None
         self.children = []
 
     def __str__(self):
@@ -99,13 +103,17 @@ class TextPart:
         xml.set('type', self.type)
         if self.name:
             xml.set('n', self.name)
+        if self.language:
+            xml.set('xml:lang', self.language)
         for child in self.children:
             xml.append(child.xml)
         return xml
 
 
 class Edition(TextPart):
-    '''Represents and Epidoc text edition.'''
+    '''Represents an Epidoc text edition.
+
+    Set the name attribute to the CTS urn.'''
 
     def __init__(self):
         super().__init__()
@@ -113,19 +121,14 @@ class Edition(TextPart):
 
 
 class Translation(TextPart):
-    '''Represents and Epidoc text translation.'''
+    '''Represents an Epidoc text translation.
+
+    Set the name attribute to the CTS urn.
+    Set the language attribute to the language of the translation.'''
 
     def __init__(self):
         super().__init__()
         self.type = 'translation'
-        self.language = None
-
-    @property
-    def xml(self):
-        xml = super().xml
-        if self.language:
-            xml.set('xml:lang', self.language)
-        return xml
 
 
 class Line:
