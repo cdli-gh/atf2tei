@@ -28,7 +28,6 @@ class Document(XMLSerializer):
         self.header = None
         self.parts = []
         self.language = None
-        self.urn = None
 
     @property
     def xml(self):
@@ -39,11 +38,6 @@ class Document(XMLSerializer):
             xml.append(self.header.xml)
         text = ET.SubElement(xml, 'text')
         body = ET.SubElement(text, 'body')
-        # General TEI style has CTS urn and language on the body tag.
-        if self.urn:
-            body.set('n', self.urn)
-        if self.language:
-            body.set('xml:lang', self.language)
         for part in self.parts:
             body.append(part.xml)
         return xml

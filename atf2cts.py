@@ -5,6 +5,7 @@ from xml.dom.minidom import parseString
 
 import atf2tei
 import cts
+import tei
 
 
 def segmentor(fp):
@@ -56,11 +57,6 @@ def convert(atf, textgroup, data_path):
     work.label = f'CDLI {doc.header.cdli_code} {work.title}'
     work.description = 'Test doc converted from atf.'
 
-    # Add CTS refsDecl.
-    encodingDesc = ET.Element('encodingDesc')
-    encodingDesc.append(cts.RefsDecl().xml)
-    doc.header.encodingDesc = encodingDesc
-
     work_path = os.path.join(data_path, urn.split('.')[-1])
 
     print('Writing', urn, doc.language, 'to', work_path)
@@ -69,6 +65,17 @@ def convert(atf, textgroup, data_path):
                  encoding='utf-8',
                  mode='w') as f:
         f.write(str(work))
+
+    # Set Edition urn per CTS epidoc guidelines.
+    for obj in doc.parts:
+        if isinstance(obj, tei.Edition):
+            obj.name = urn
+            obj.language = work.language
+
+    # Add CTS refsDecl.
+    encodingDesc = ET.Element('encodingDesc')
+    encodingDesc.append(cts.RefsDecl().xml)
+    doc.header.encodingDesc = encodingDesc
 
     doc_filename = urn.split(':')[-1] + '.' + doc.language + '.xml'
     doc_path = os.path.join(work_path, doc_filename)
