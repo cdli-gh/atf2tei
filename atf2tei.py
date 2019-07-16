@@ -153,12 +153,18 @@ def normalize_transliteration(words):
         word = re.sub(r'H,', 'Ḫ', word)     # \u1E2A
         word = re.sub(r'j', 'ŋ', word)      # \u014B
         word = re.sub(r'J', 'Ŋ', word)      # \u014A
+        'Convert damage marks to half-brackets.'
+        marked = [
+            '⸢' + sign[:-1] + '⸣' if sign.endswith('#')
+            else sign
+            for sign in word.split('-')
+        ]
+        word = '-'.join(marked)
         'XML-escape the result.'
         word = escape(word)
         'Convert markup to tei elements.'
         # TODO: <c type="determinative">
         # TODO: <c type="sign" subtype="logo">
-        # TODO: half-bracket for damage
         result.append(word)
     return ' '.join(result)
 
