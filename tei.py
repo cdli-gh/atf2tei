@@ -13,6 +13,7 @@ class Document:
         self.header = None
         self.parts = []
         self.language = None
+        self.urn = None
 
     def __str__(self):
         'Serialized XML representation as a string.'
@@ -28,6 +29,11 @@ class Document:
             xml.append(self.header.xml)
         text = ET.SubElement(xml, 'text')
         body = ET.SubElement(text, 'body')
+        # General TEI style has CTS urn and language on the body tag.
+        if self.urn:
+            body.set('n', self.urn)
+        if self.language:
+            body.set('xml:lang', self.language)
         for part in self.parts:
             body.append(part.xml)
         return xml
