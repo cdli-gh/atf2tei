@@ -62,12 +62,12 @@ class Work:
         title.text = self.title
         title.set('xml:lang', 'eng')
         edition = ET.SubElement(xml, 'ti:edition')
-        if self.group_urn:
-            xml.set('groupUrn', self.group_urn)
-        if self.work_urn:
-            xml.set('urn', self.work_urn)
-            edition.set('workUrn', self.work_urn)
-            edition.set('urn', self.work_urn + '.' + self.language)
+        if self.groupUrn:
+            xml.set('groupUrn', self.groupUrn)
+        if self.workUrn:
+            xml.set('urn', self.workUrn)
+            edition.set('workUrn', self.workUrn)
+            edition.set('urn', self.workUrn + '.' + self.language)
         label = ET.SubElement(edition, 'ti:label')
         if self.label:
             label.text = self.label

@@ -24,7 +24,7 @@ def segmentor(fp):
         yield atf
 
 
-def convert(atf, data_path):
+def convert(atf, textgroup, data_path):
     '''Convert an atf string and write it out as XML.
 
     returns a (success, parse_failed, export_failed) flag tuple.'''
@@ -38,36 +38,34 @@ def convert(atf, data_path):
         print(atf)
         return parse_failed
     try:
-        dom = parseString(str(doc))
+        _ = parseString(str(doc))
     except Exception as e:
         print('Error parsing converted XML:', e)
         print(doc)
         return export_failed
 
-    # Fetch title
-    urn = f'urn:cts:cdli:test.{doc.header.cdli_code}'
-    doc.groupUrn = urn
-
-    group_filename = groupUrn.split(':')[-1]
-    group_path = os.path.join(data_path, group_dirname)
+    # Compose work metadata under the given textgroup.
+    urn = f'{textgroup.urn}.{doc.header.cdli_code}'
 
     work = cts.Work()
-    work.group_urn = textgroup.urn
-    work.work_urn = urn
-    work.language = lang
+    work.groupUrn = textgroup.urn
+    work.workUrn = urn
+    work.language = doc.language
+    work.title = doc.header.title
+    work.label = f'CDLI {doc.header.cdli_code} {work.title}'
     work.description = 'Test doc converted from atf.'
-    work.label = ' '.join(['CDLI', doc_dirname, title])
-    work.title = title
 
-    doc_filename = urn.split(':')[-1] + '.xml'
-    doc_path = os.path.join(group_path, doc_filename)
-    print('Writing', urn, doc.language, 'to', doc_filename)
-    os.makedirs(doc_path, exist_ok=True)
-    with io.open(os.path.join(doc_path, '__cts__.xml'),
+    work_path = os.path.join(data_path, urn.split('.')[-1])
+
+    print('Writing', urn, doc.language, 'to', work_path)
+    os.makedirs(work_path, exist_ok=True)
+    with io.open(os.path.join(work_path, '__cts__.xml'),
                  encoding='utf-8',
                  mode='w') as f:
         f.write(str(work))
 
+    doc_filename = urn.split(':')[-1] + '.xml'
+    doc_path = os.path.join(work_path, doc_filename)
     with io.open(doc_path, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
 
@@ -89,11 +87,12 @@ if __name__ == '__main__':
     parse_failures = 0
     export_failures = 0
 
-    data_path = 'data/test'
-    os.makedirs(data_path, exist_ok=True)
     textgroup = cts.TextGroup()
     textgroup.urn = 'urn:cts:cdli:test'
     textgroup.name = 'atf2cts test examples'
+    data_path = os.path.join('data', textgroup.urn.split(':')[-1])
+    os.makedirs(data_path, exist_ok=True)
+    print(f'Writing textgroup to {data_path}')
     with io.open(os.path.join(data_path, '__cts__.xml'),
                  encoding='utf-8',
                  mode='w') as f:
@@ -103,7 +102,7 @@ if __name__ == '__main__':
         print('Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
             with futures.ProcessPoolExecutor() as exe:
-                jobs = [exe.submit(convert, atf, data_path)
+                jobs = [exe.submit(convert, atf, textgroup, data_path)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
                     s, p, e = job.result()
