@@ -17,7 +17,8 @@ class XMLSerializer:
     def __str__(self):
         'Serialized XML representation as a string.'
         serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
+        # Run the xml through minidom to control the indent.
+        return parseString(serialized).toprettyxml(indent='  ')
 
 
 class Document(XMLSerializer):
