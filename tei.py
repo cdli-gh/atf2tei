@@ -6,17 +6,29 @@ from xml.dom.minidom import parseString
 namespace = 'http://www.tei-c.org/ns/1.0'
 
 
-class Document:
+class XMLSerializer:
+    '''Mixin for XML serialization.
+
+    Override the xml property to return an ElementTree representation
+    of the object's data. This class will provide a __str__ method
+    to serialize it in a uniform way.'''
+    xml = None
+
+    def __str__(self):
+        'Serialized XML representation as a string.'
+        serialized = ET.tostring(self.xml, encoding='unicode')
+        # Run the xml through minidom to control the indent.
+        return parseString(serialized).toprettyxml(indent='  ')
+
+
+class Document(XMLSerializer):
     '''Represents a TEI document.'''
 
     def __init__(self):
         self.header = None
         self.parts = []
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
+        self.language = None
+        self.urn = None
 
     @property
     def xml(self):
@@ -27,21 +39,23 @@ class Document:
             xml.append(self.header.xml)
         text = ET.SubElement(xml, 'text')
         body = ET.SubElement(text, 'body')
+        # General TEI style has CTS urn and language on the body tag.
+        if self.urn:
+            body.set('n', self.urn)
+        if self.language:
+            body.set('xml:lang', self.language)
         for part in self.parts:
             body.append(part.xml)
         return xml
 
 
-class Header:
+class Header(XMLSerializer):
     '''Represents a TEI Header.'''
 
     def __init__(self):
         self.title = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
+        self.publication = 'Converted from ATF by atf2tei.'
+        self.cdli_code = None
 
     @property
     def xml(self):
@@ -51,36 +65,55 @@ class Header:
         titleStmt = ET.SubElement(fileDesc, 'titleStmt')
         title = ET.SubElement(titleStmt, 'title')
         title.text = self.title
+        if self.publication:
+            publicationStmt = ET.SubElement(fileDesc, 'publicationStmt')
+            p = ET.SubElement(publicationStmt, 'p')
+            p.text = self.publication
+        if self.cdli_code:
+            sourceDesc = ET.SubElement(fileDesc, 'sourceDesc')
+            bibl = ET.SubElement(sourceDesc, 'bibl')
+            title = ET.SubElement(bibl, 'title')
+            title.text = 'CDLI'
+            idno = ET.SubElement(title, 'idno')
+            idno.set('type', 'CDLI')
+            idno.text = self.cdli_code
         return xml
 
 
-class TextPart:
-    '''Represents an Epidoc text division.'''
+class TextPart(XMLSerializer):
+    '''Represents an Epidoc text division.
 
-    def __init__(self):
-        self.name = None
+    Set the name attribute to book, chapter, obverse, etc.,
+    whatever describes the division.'''
+
+    def __init__(self, name=None):
+        self.name = name
         self.type = 'textpart'
+        self.language = None
         self.children = []
 
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
+    def append(self, obj):
+        'Append a sub-element to the list of children.'
+        self.children.append(obj)
 
     @property
     def xml(self):
-        'Construct an XML ElemenTree representation.'
+        'Construct an XML ElementTree representation.'
         xml = ET.Element('div')
         xml.set('type', self.type)
         if self.name:
             xml.set('n', self.name)
+        if self.language:
+            xml.set('xml:lang', self.language)
         for child in self.children:
             xml.append(child.xml)
         return xml
 
 
 class Edition(TextPart):
-    '''Represents and Epidoc text edition.'''
+    '''Represents an Epidoc text edition.
+
+    Set the name attribute to the CTS urn.'''
 
     def __init__(self):
         super().__init__()
@@ -88,23 +121,26 @@ class Edition(TextPart):
 
 
 class Translation(TextPart):
-    '''Represents and Epidoc text translation.'''
+    '''Represents an Epidoc text translation.
+
+    Set the name attribute to the CTS urn.
+    Set the language attribute to the language of the translation.'''
 
     def __init__(self):
         super().__init__()
         self.type = 'translation'
-        self.language = None
+
+
+class Line(XMLSerializer):
+    '''Represents a line of text.'''
+    def __init__(self, ref, content):
+        self.ref = ref
+        self.content = content
 
     @property
     def xml(self):
-        xml = super().xml
-        if self.language:
-            xml.set('xml:lang', self.language)
+        'Construct an XML ElementTree representation.'
+        xml = ET.Element('l')
+        xml.set('n', self.ref)
+        xml.text = self.content
         return xml
-
-
-class Text:
-    '''Represents a TEI Text body.'''
-
-    def __init__(self):
-        self.type = 'edition'

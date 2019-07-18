@@ -39,12 +39,12 @@ class Work:
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
 
     def __init__(self):
-        self.group_urn = None
-        self.work_urn = None
+        self.groupUrn = None
+        self.workUrn = None
         self.language = None
-        self.description = None
-        self.label = None
         self.title = None
+        self.label = None
+        self.description = None
 
     def __str__(self):
         'Serialized XML representation as a string.'
@@ -62,12 +62,12 @@ class Work:
         title.text = self.title
         title.set('xml:lang', 'eng')
         edition = ET.SubElement(xml, 'ti:edition')
-        if self.group_urn:
-            xml.set('groupUrn', self.group_urn)
-        if self.work_urn:
-            xml.set('urn', self.work_urn)
-            edition.set('workUrn', self.work_urn)
-            edition.set('urn', self.work_urn + '.' + self.language)
+        if self.groupUrn:
+            xml.set('groupUrn', self.groupUrn)
+        if self.workUrn:
+            xml.set('urn', self.workUrn)
+            edition.set('workUrn', self.workUrn)
+            edition.set('urn', self.workUrn + '.' + self.language)
         label = ET.SubElement(edition, 'ti:label')
         if self.label:
             label.text = self.label

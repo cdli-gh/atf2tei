@@ -36,6 +36,18 @@ def test_title():
     assert title.tag == 'title'
 
 
+def test_line():
+    'Verify line serialization.'
+    ref = '1'
+    text = 'The quick brown fox jumped over the lazy dog'
+    line = tei.Line(ref, text)
+    xml = ET.fromstring(str(line))
+    # Line doesn't set a namespace attribute so no need to qualify.
+    assert xml.tag == 'l'
+    assert xml.attrib['n'] == ref
+    assert xml.text == text
+
+
 def test_document():
     'Verify basic attributes of a document are serialized.'
     name = 'Example Text Document'
