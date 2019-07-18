@@ -28,7 +28,6 @@ class Document(XMLSerializer):
         self.header = None
         self.parts = []
         self.language = None
-        self.urn = None
 
     @property
     def xml(self):
@@ -39,11 +38,6 @@ class Document(XMLSerializer):
             xml.append(self.header.xml)
         text = ET.SubElement(xml, 'text')
         body = ET.SubElement(text, 'body')
-        # General TEI style has CTS urn and language on the body tag.
-        if self.urn:
-            body.set('n', self.urn)
-        if self.language:
-            body.set('xml:lang', self.language)
         for part in self.parts:
             body.append(part.xml)
         return xml
@@ -56,6 +50,7 @@ class Header(XMLSerializer):
         self.title = None
         self.publication = 'Converted from ATF by atf2tei.'
         self.cdli_code = None
+        self.encodingDesc = None
 
     @property
     def xml(self):
@@ -77,6 +72,8 @@ class Header(XMLSerializer):
             idno = ET.SubElement(title, 'idno')
             idno.set('type', 'CDLI')
             idno.text = self.cdli_code
+        if self.encodingDesc:
+            xml.append(self.encodingDesc)
         return xml
 
 

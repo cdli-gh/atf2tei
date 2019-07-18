@@ -1,10 +1,11 @@
 '''Models for generating Canonical Text Services index files.'''
 
 import xml.etree.ElementTree as ET
-from xml.dom.minidom import parseString
+
+from tei import XMLSerializer
 
 
-class TextGroup:
+class TextGroup(XMLSerializer):
     '''Represents a textgroup element.'''
 
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
@@ -12,11 +13,6 @@ class TextGroup:
     def __init__(self):
         self.urn = None
         self.name = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
@@ -33,7 +29,7 @@ class TextGroup:
         return xml
 
 
-class Work:
+class Work(XMLSerializer):
     '''Represents a TEI work.'''
 
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
@@ -45,11 +41,6 @@ class Work:
         self.title = None
         self.label = None
         self.description = None
-
-    def __str__(self):
-        'Serialized XML representation as a string.'
-        serialized = ET.tostring(self.xml, encoding='unicode')
-        return parseString(serialized).toprettyxml()
 
     @property
     def xml(self):
@@ -77,3 +68,42 @@ class Work:
             description.text = self.description
             description.set('xml:lang', 'eng')
         return xml
+
+
+class RefsDecl(XMLSerializer):
+    '''Produce the refsDecl subtree required by CTS guidelines.
+
+    Results are specific to the way we structure cuneiform
+    data from ATF.'''
+    prefix = '#xpath(/tei:TEI/tei:text/tei:body/tei:div'
+    levels = [
+        (
+          'line', 3,
+          'This pattern references a specific line.',
+          prefix + "/tei:div[@n='$1']/tei:div[@n='$2']/tei:l[@n='$3'])"
+        ),
+        (
+          'surface', 2,
+          'This pattern references an inscribed surface.',
+          prefix + "/tei:div[@n='$1']/tei:div[@n='$2'])"
+        ),
+        (
+          'object', 1,
+          'This pattern references a specific artefact, usually a tablet.',
+          prefix + "/tei:div[@n='$1'])"
+        ),
+    ]
+
+    @property
+    def xml(self):
+        'Construct an XML ElementTree representation of member data.'
+        refsDecl = ET.Element('refsDecl')
+        refsDecl.set('n', 'CTS')
+        for name, count, description, xpath in self.levels:
+            pattern = ET.SubElement(refsDecl, 'cRefPattern')
+            pattern.set('n', name)
+            pattern.set('matchPattern', r'\.'.join([r'(\w+)'] * count))
+            pattern.set('replacementPattern', xpath)
+            p = ET.SubElement(pattern, 'p')
+            p.text = description
+        return refsDecl

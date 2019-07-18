@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 
 import atf2tei
 import cts
+import tei
 
 
 def segmentor(fp):
@@ -64,7 +66,19 @@ def convert(atf, textgroup, data_path):
                  mode='w') as f:
         f.write(str(work))
 
-    doc_filename = urn.split(':')[-1] + '.xml'
+    # Set Edition urn per CTS epidoc guidelines.
+    editionUrn = f'{work.workUrn}.cdli-{work.language}'
+    for obj in doc.parts:
+        if isinstance(obj, tei.Edition):
+            obj.name = editionUrn
+            obj.language = work.language
+
+    # Add CTS refsDecl.
+    encodingDesc = ET.Element('encodingDesc')
+    encodingDesc.append(cts.RefsDecl().xml)
+    doc.header.encodingDesc = encodingDesc
+
+    doc_filename = editionUrn.split(':')[-1] + '.xml'
     doc_path = os.path.join(work_path, doc_filename)
     with io.open(doc_path, encoding='utf-8', mode='w') as f:
         f.write(str(doc))
