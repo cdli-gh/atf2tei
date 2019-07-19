@@ -97,7 +97,7 @@ def convert(atf_text):
                             translations[lang].append(tr_line)
                 else:
                     # Skip unknown object type.
-                    f'<!-- {type(line).__name__}: {line} -->'
+                    f'<!-- {type(obj).__name__}: {obj} -->'
                     continue
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
