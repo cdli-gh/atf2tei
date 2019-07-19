@@ -47,18 +47,22 @@ class Work(XMLSerializer):
         'Construct an XML ElementTree representation of member data.'
         xml = ET.Element('ti:work')
         xml.set('xmlns:ti', self.ns['ti'])
+        if self.groupUrn:
+            xml.set('groupUrn', self.groupUrn)
+        if self.workUrn:
+            xml.set('urn', self.workUrn)
         if self.language:
             xml.set('xml:lang', self.language)
         title = ET.SubElement(xml, 'ti:title')
         title.text = self.title
         title.set('xml:lang', 'eng')
         edition = ET.SubElement(xml, 'ti:edition')
-        if self.groupUrn:
-            xml.set('groupUrn', self.groupUrn)
         if self.workUrn:
-            xml.set('urn', self.workUrn)
             edition.set('workUrn', self.workUrn)
-            edition.set('urn', self.workUrn + '.' + self.language)
+            editionUrn = self.workUrn + '.cdli'
+            if self.language:
+                editionUrn += '-' + self.language
+            edition.set('urn', editionUrn)
         label = ET.SubElement(edition, 'ti:label')
         if self.label:
             label.text = self.label
