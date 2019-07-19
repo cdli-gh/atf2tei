@@ -29,15 +29,6 @@ def segmentor(fp):
         yield atf
 
 
-def write(obj, filename):
-    '''Write a serialization object to the given filename.
-
-    Creates the parent directory if necessary.'''
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    with io.open(filename, encoding='utf-8', mode='w') as f:
-        f.write(str(obj))
-
-
 def convert(atf, textgroup, data_path):
     '''Convert an atf string and write it out as XML.
 
@@ -72,7 +63,8 @@ def convert(atf, textgroup, data_path):
     work_path = os.path.join(data_path, urn.split('.')[-1])
 
     print('Writing', urn, doc.language, 'to', work_path)
-    write(work, os.path.join(work_path, '__cts__.xml'))
+    os.makedirs(work_path, exist_ok=True)
+    work.write(os.path.join(work_path, '__cts__.xml'))
 
     # Set Edition urn per CTS epidoc guidelines.
     editionUrn = f'{work.workUrn}.cdli-{work.language}'
@@ -87,7 +79,7 @@ def convert(atf, textgroup, data_path):
     doc.header.encodingDesc = encodingDesc
 
     doc_filename = editionUrn.split(':')[-1] + '.xml'
-    write(doc, os.path.join(work_path, doc_filename))
+    doc.write(os.path.join(work_path, doc_filename))
 
     return success
 
@@ -113,7 +105,8 @@ if __name__ == '__main__':
     data_path = os.path.join('data', textgroup.urn.split(':')[-1])
     os.makedirs(data_path, exist_ok=True)
     print(f'Writing textgroup to {data_path}')
-    write(textgroup, os.path.join(data_path, '__cts__.xml'))
+    os.makedirs(data_path, exist_ok=True)
+    textgroup.write(os.path.join(data_path, '__cts__.xml'))
 
     for filename in sys.argv[1:]:
         print('Parsing:', filename)

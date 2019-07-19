@@ -1,5 +1,6 @@
 '''Models for generating Epidoc Text Encoding Initiative xml files.'''
 
+import io
 import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 
@@ -19,6 +20,11 @@ class XMLSerializer:
         serialized = ET.tostring(self.xml, encoding='unicode')
         # Run the xml through minidom to control the indent.
         return parseString(serialized).toprettyxml(indent='  ')
+
+    def write(self, filename):
+        'Write a serialized representation to the given file path.'
+        with io.open(filename, encoding='utf-8', mode='w') as f:
+            f.write(str(self))
 
 
 class Document(XMLSerializer):
