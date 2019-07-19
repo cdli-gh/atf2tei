@@ -29,13 +29,23 @@ def segmentor(fp):
         yield atf
 
 
-def convert(atf, textgroup, data_path):
+def convert(atf, data_path, textgroup=None):
     '''Convert an atf string and write it out as XML.
 
+    data_path should be the path to the data directory inside
+    the target CTS file repository.
+
+    The URNs and file locations under data_path will be derived
+    from the textgroup, if one is passed in. If no textgroup is
+    supplied, a work-specific textgroup will be generated and
+    written out as well.
+
     returns a (success, parse_failed, export_failed) flag tuple.'''
+
     success = (True, False, False)
     parse_failed = (False, True, False)
     export_failed = (False, False, True)
+
     try:
         doc = atf2tei.convert(atf)
     except Exception as e:
@@ -48,6 +58,17 @@ def convert(atf, textgroup, data_path):
         print('Error parsing converted XML:', e)
         print(doc)
         return export_failed
+
+    if not textgroup:
+        'Generate a work-specific textgroup.'
+        textgroup = cts.TextGroup()
+        textgroup.urn = f'urn:cts:cdli:{doc.header.cdli_code}'
+        textgroup.name = f'CDLI {doc.header.cdli_code} {doc.header.title}'
+        data_path = os.path.join(data_path, textgroup.urn.split(':')[-1])
+        os.makedirs(data_path, exist_ok=True)
+        print(f'Writing textgroup to {data_path}')
+        os.makedirs(data_path, exist_ok=True)
+        textgroup.write(os.path.join(data_path, '__cts__.xml'))
 
     # Compose work metadata under the given textgroup.
     urn = f'{textgroup.urn}.{doc.header.cdli_code}'
@@ -112,7 +133,7 @@ if __name__ == '__main__':
         print('Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
             with futures.ProcessPoolExecutor() as exe:
-                jobs = [exe.submit(convert, atf, textgroup, data_path)
+                jobs = [exe.submit(convert, atf, data_path, textgroup)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
                     s, p, e = job.result()
