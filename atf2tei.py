@@ -72,8 +72,8 @@ def convert(atf_text):
                 # Handle in another pass.
                 continue
             else:
-                # Skip unknown section type.
-                f'<!-- {type(section).__name__}: {section} -->'
+                print('Skipping unknown section type',
+                      type(section).__name__)
                 continue
             for obj in section.children:
                 if isinstance(obj, Line):
@@ -96,8 +96,8 @@ def convert(atf_text):
                                 translations[lang] = []
                             translations[lang].append(tr_line)
                 else:
-                    # Skip unknown object type.
-                    f'<!-- {type(obj).__name__}: {obj} -->'
+                    print('Skipping unknown section child type',
+                          type(obj).__name__)
                     continue
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
@@ -121,8 +121,8 @@ def convert(atf_text):
                             line = tei.Line(obj.label, text)
                             div.append(line)
                         else:
-                            # Skip unknown object type.
-                            f'<!-- {type(line).__name__}: {line} -->\n'
+                            print('Skipping unknown section child type',
+                                  {type(obj).__name__})
                             continue
     for lang, tr_lines in translations.items():
         translation = tei.Translation()
