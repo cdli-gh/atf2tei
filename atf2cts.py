@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     textgroup = cts.TextGroup()
     textgroup.urn = 'urn:cts:cdli:test'
-    textgroup.name = 'atf2cts test examples'
+    textgroup.name = 'Test samples converted by atf2cts'
     data_path = os.path.join('data', textgroup.urn.split(':')[-1])
     os.makedirs(data_path, exist_ok=True)
     print(f'Writing textgroup to {data_path}')
