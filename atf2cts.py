@@ -20,6 +20,9 @@ def segmentor(fp):
                 yield atf
             atf = line
             sync = True
+        elif not atf:
+            print('WARNING: skipping unrecognized line:', line.strip())
+            continue
         else:
             atf += line
     if atf and sync:
