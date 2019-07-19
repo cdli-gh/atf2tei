@@ -120,20 +120,14 @@ if __name__ == '__main__':
     parse_failures = 0
     export_failures = 0
 
-    textgroup = cts.TextGroup()
-    textgroup.urn = 'urn:cts:cdli:test'
-    textgroup.name = 'Test samples converted by atf2cts'
-    data_path = os.path.join('data', textgroup.urn.split(':')[-1])
-    os.makedirs(data_path, exist_ok=True)
-    print(f'Writing textgroup to {data_path}')
-    os.makedirs(data_path, exist_ok=True)
-    textgroup.write(os.path.join(data_path, '__cts__.xml'))
+    # Relative path to place CTS file repository data.
+    data_path = 'data'
 
     for filename in sys.argv[1:]:
         print('Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
             with futures.ProcessPoolExecutor() as exe:
-                jobs = [exe.submit(convert, atf, data_path, textgroup)
+                jobs = [exe.submit(convert, atf, data_path)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
                     s, p, e = job.result()
