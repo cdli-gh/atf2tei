@@ -6,7 +6,7 @@ from tei import XMLSerializer
 
 
 class TextGroup(XMLSerializer):
-    '''Represents a textgroup element.'''
+    '''Represents a CTS textgroup element.'''
 
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
 
@@ -30,7 +30,7 @@ class TextGroup(XMLSerializer):
 
 
 class Work(XMLSerializer):
-    '''Represents a TEI work.'''
+    '''Represents a CTS work.'''
 
     ns = {'ti': 'http://chs.harvard.edu/xmlns/cts'}
 
