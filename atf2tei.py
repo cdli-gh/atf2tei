@@ -38,7 +38,11 @@ def convert(atf_text):
         edition.append(part)
         for section in item.children:
             if isinstance(section, OraccObject):
-                div = tei.TextPart(section.objecttype)
+                try:
+                    name = section.name
+                except AttributeError:
+                    name = section.objecttype
+                div = tei.TextPart(name)
                 part.append(div)
             elif isinstance(section, Translation):
                 # Handle in another pass.
