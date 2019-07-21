@@ -12,6 +12,12 @@ import xml.etree.ElementTree as ET
 import tei
 
 
+def add_line(atf, line):
+    label = line.get('n')
+    text = ''.join(line.itertext()).strip()
+    atf.append(f'{label}. {text}')
+
+
 def convert(fp):
     'Read TEI XML from the given file-like object and return ATF.'
     xml = ET.fromstring(fp.read())
@@ -42,11 +48,24 @@ def convert(fp):
 
     # Loop over parts adding labels.
     for obj in edition.findall('tei:div', ns):
-        atf.append('@' + obj.get('n'))
+        # Construct a label based on attributes.
+        subtype = obj.get('subtype')
+        n = obj.get('n')
+        if subtype:
+            label = f'@{subtype} {n}'
+        else:
+            label = f'@{n}'
+        atf.append(label)
+        # Serialize any lines directly under this.
+        lines = obj.findall('tei:l', ns)
+        if lines:
+            for line in lines:
+                add_line(atf, line)
+        # Serialize any subdivisions.
         for surface in obj.findall('tei:div', ns):
             atf.append('@' + surface.get('n'))
             for line in surface.findall('tei:l', ns):
-                atf.append(f'{line.get("n")}. {line.text}')
+                add_line(atf, line)
 
     # Return the ATF result as a string.
     return '\n'.join(atf)
