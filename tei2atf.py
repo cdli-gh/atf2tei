@@ -19,30 +19,33 @@ def convert(fp):
         'tei': tei.namespace,
         'xml': 'http://www.w3.org/XML/1998/namespace',
     }
-    print(xml.find('tei:text', ns))
 
     # Collection of lines for output.
     atf = []
 
     # Fetch data for the header.
     title = xml.find('./tei:teiHeader//tei:title', ns).text
-    code = xml.find('./tei:teiHeader//tei:idno', ns).text
+    idno = xml.find('./tei:teiHeader//tei:idno', ns)
     edition = xml.find('./tei:text//tei:div[@type="edition"]', ns)
     language = edition.get(f'{{{ns["xml"]}}}lang')
+    urn = edition.get('n')
 
     # Construct the header.
+    if idno:
+        # Get the CDLI number from the teiHeader.
+        code = idno.text
+    else:
+        # No CDLI number, use part of the urn instead.
+        code = ':'.join(urn.split(':')[2:])
     atf.append(f'&{code} = {title}')
     atf.append(f'#atf: lang {language}')
 
     # Loop over parts adding labels.
     for obj in edition.findall('tei:div', ns):
-        print(obj.tag)
         atf.append('@' + obj.get('n'))
         for surface in obj.findall('tei:div', ns):
-            print(surface.tag)
             atf.append('@' + surface.get('n'))
             for line in surface.findall('tei:l', ns):
-                print(line.tag)
                 atf.append(f'{line.get("n")}. {line.text}')
 
     # Return the ATF result as a string.
