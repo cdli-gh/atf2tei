@@ -37,7 +37,7 @@ def convert(fp):
     urn = edition.get('n')
 
     # Construct the header.
-    if idno:
+    if idno is not None:
         # Get the CDLI number from the teiHeader.
         code = idno.text
     else:
