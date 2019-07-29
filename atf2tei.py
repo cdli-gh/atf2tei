@@ -27,35 +27,7 @@ def convert(atf_text):
     doc.header = tei.Header()
     doc.header.title = atf.text.description
     doc.header.cdli_code = atf.text.code
-    '<?xml version="1.0" encoding="UTF-8"?>'
-    encodingDesc = '''
-<encodingDesc>
-  <refsDecl n="CTS">
-    <cRefPattern n="line"
-                 matchPattern="(\\w+)\\.(\\w+)\\.(\\w+)"
-                 replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\']/tei:div[@n=\'$2\']/tei:l[@n=\'$3\'])">
-      <p>This pointer pattern extracts a specific line.</p>
-    </cRefPattern>
-    <cRefPattern n="surface"
-                 matchPattern="(\\w+)\\.(\\w+)"
-                 replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\']/tei:div[@n=\'$2\'])">
-      <p>This pointer pattern extracts an inscribed surface.</p>
-    </cRefPattern>
-    <cRefPattern n="object"
-                 matchPattern="(\\w+)"
-                 replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n=\'$1\'])">
-      <p>This pointer pattern extracts a specific artefact,
-         usually a tablet.</p>
-    </cRefPattern>
-  </refsDecl>
-</encodingDesc>
-</teiHeader>
-'''
-    urn = f'urn:cts:cdli:test.{atf.text.code}'
-    # Append n={urn} xml:lang={atf.text.language} to the text element.
-    f'<text n="{urn}"'
-    if atf.text.language:
-        f'xml:lang="{atf.text.language}"'
+
     translations = {}
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
@@ -66,14 +38,18 @@ def convert(atf_text):
         edition.append(part)
         for section in item.children:
             if isinstance(section, OraccObject):
-                div = tei.TextPart(section.objecttype)
+                try:
+                    name = section.name
+                except AttributeError:
+                    name = section.objecttype
+                div = tei.TextPart(name)
                 part.append(div)
             elif isinstance(section, Translation):
                 # Handle in another pass.
                 continue
             else:
-                # Skip unknown section type.
-                f'<!-- {type(section).__name__}: {section} -->'
+                print('Skipping unknown section type',
+                      type(section).__name__)
                 continue
             for obj in section.children:
                 if isinstance(obj, Line):
@@ -96,8 +72,8 @@ def convert(atf_text):
                                 translations[lang] = []
                             translations[lang].append(tr_line)
                 else:
-                    # Skip unknown object type.
-                    f'<!-- {type(line).__name__}: {line} -->'
+                    print('Skipping unknown section child type',
+                          type(obj).__name__)
                     continue
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
@@ -121,8 +97,8 @@ def convert(atf_text):
                             line = tei.Line(obj.label, text)
                             div.append(line)
                         else:
-                            # Skip unknown object type.
-                            f'<!-- {type(line).__name__}: {line} -->\n'
+                            print('Skipping unknown section child type',
+                                  {type(obj).__name__})
                             continue
     for lang, tr_lines in translations.items():
         translation = tei.Translation()

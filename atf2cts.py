@@ -20,19 +20,32 @@ def segmentor(fp):
                 yield atf
             atf = line
             sync = True
+        elif not atf:
+            print('WARNING: skipping unrecognized line:', line.strip())
+            continue
         else:
             atf += line
     if atf and sync:
         yield atf
 
 
-def convert(atf, textgroup, data_path):
+def convert(atf, data_path, textgroup=None):
     '''Convert an atf string and write it out as XML.
 
+    data_path should be the path to the data directory inside
+    the target CTS file repository.
+
+    The URNs and file locations under data_path will be derived
+    from the textgroup, if one is passed in. If no textgroup is
+    supplied, a work-specific textgroup will be generated and
+    written out as well.
+
     returns a (success, parse_failed, export_failed) flag tuple.'''
+
     success = (True, False, False)
     parse_failed = (False, True, False)
     export_failed = (False, False, True)
+
     try:
         doc = atf2tei.convert(atf)
     except Exception as e:
@@ -45,6 +58,17 @@ def convert(atf, textgroup, data_path):
         print('Error parsing converted XML:', e)
         print(doc)
         return export_failed
+
+    if not textgroup:
+        'Generate a work-specific textgroup.'
+        textgroup = cts.TextGroup()
+        textgroup.urn = f'urn:cts:cdli:{doc.header.cdli_code}'
+        textgroup.name = f'CDLI {doc.header.cdli_code} {doc.header.title}'
+        data_path = os.path.join(data_path, textgroup.urn.split(':')[-1])
+        os.makedirs(data_path, exist_ok=True)
+        print(f'Writing textgroup to {data_path}')
+        os.makedirs(data_path, exist_ok=True)
+        textgroup.write(os.path.join(data_path, '__cts__.xml'))
 
     # Compose work metadata under the given textgroup.
     urn = f'{textgroup.urn}.{doc.header.cdli_code}'
@@ -61,10 +85,7 @@ def convert(atf, textgroup, data_path):
 
     print('Writing', urn, doc.language, 'to', work_path)
     os.makedirs(work_path, exist_ok=True)
-    with io.open(os.path.join(work_path, '__cts__.xml'),
-                 encoding='utf-8',
-                 mode='w') as f:
-        f.write(str(work))
+    work.write(os.path.join(work_path, '__cts__.xml'))
 
     # Set Edition urn per CTS epidoc guidelines.
     editionUrn = f'{work.workUrn}.cdli-{work.language}'
@@ -79,9 +100,7 @@ def convert(atf, textgroup, data_path):
     doc.header.encodingDesc = encodingDesc
 
     doc_filename = editionUrn.split(':')[-1] + '.xml'
-    doc_path = os.path.join(work_path, doc_filename)
-    with io.open(doc_path, encoding='utf-8', mode='w') as f:
-        f.write(str(doc))
+    doc.write(os.path.join(work_path, doc_filename))
 
     return success
 
@@ -101,22 +120,14 @@ if __name__ == '__main__':
     parse_failures = 0
     export_failures = 0
 
-    textgroup = cts.TextGroup()
-    textgroup.urn = 'urn:cts:cdli:test'
-    textgroup.name = 'atf2cts test examples'
-    data_path = os.path.join('data', textgroup.urn.split(':')[-1])
-    os.makedirs(data_path, exist_ok=True)
-    print(f'Writing textgroup to {data_path}')
-    with io.open(os.path.join(data_path, '__cts__.xml'),
-                 encoding='utf-8',
-                 mode='w') as f:
-        f.write(str(textgroup))
+    # Relative path to place CTS file repository data.
+    data_path = 'data'
 
     for filename in sys.argv[1:]:
         print('Parsing:', filename)
         with io.open(filename, encoding='utf-8') as f:
             with futures.ProcessPoolExecutor() as exe:
-                jobs = [exe.submit(convert, atf, textgroup, data_path)
+                jobs = [exe.submit(convert, atf, data_path)
                         for atf in segmentor(f)]
                 for job in futures.as_completed(jobs):
                     s, p, e = job.result()
