@@ -136,7 +136,7 @@ if __name__ == '__main__':
                     export_failures += e
     if parse_failures:
         print('Error:', parse_failures, 'records did not convert.')
-    if failed_export:
+    if export_failures:
         print('Error:', export_failures, 'records did not serialize.')
     elapsed = datetime.utcnow() - start
     seconds = elapsed.seconds + elapsed.microseconds*1e-6
