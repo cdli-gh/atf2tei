@@ -14,7 +14,7 @@ def segmentor(fp):
     sync = False
     for line in fp.readlines():
         if line.startswith('&'):
-            print('New atf record: ', line.strip())
+            print('New atf record:', line.strip())
             # Start of a new record. Flush the old one, if any.
             if atf and sync:
                 yield atf
