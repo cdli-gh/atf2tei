@@ -114,8 +114,6 @@ if __name__ == '__main__':
     from datetime import datetime
 
     start = datetime.utcnow()
-    failed_parse = []
-    failed_export = []
     successful = 0
     parse_failures = 0
     export_failures = 0
