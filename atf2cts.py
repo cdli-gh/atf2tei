@@ -56,7 +56,6 @@ def convert(atf, data_path, textgroup=None):
         _ = parseString(str(doc))
     except Exception as e:
         print('Error parsing converted XML:', e)
-        print(doc)
         return export_failed
 
     if not textgroup:
