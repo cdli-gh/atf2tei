@@ -79,7 +79,7 @@ def convert(atf, data_path, textgroup=None):
     work.language = doc.language
     work.title = doc.header.title
     work.label = f'CDLI {doc.header.cdli_code} {work.title}'
-    work.description = 'Test doc converted from atf.'
+    work.description = 'Cuneiform transcription converted from atf.'
 
     work_path = os.path.join(data_path, urn.split('.')[-1])
 
@@ -87,20 +87,30 @@ def convert(atf, data_path, textgroup=None):
     os.makedirs(work_path, exist_ok=True)
     work.write(os.path.join(work_path, '__cts__.xml'))
 
-    # Set Edition urn per CTS epidoc guidelines.
-    editionUrn = f'{work.workUrn}.cdli-{work.language}'
-    for obj in doc.parts:
-        if isinstance(obj, tei.Edition):
-            obj.name = editionUrn
-            obj.language = work.language
-
     # Add CTS refsDecl.
     encodingDesc = ET.Element('encodingDesc')
     encodingDesc.append(cts.RefsDecl().xml)
     doc.header.encodingDesc = encodingDesc
 
-    doc_filename = editionUrn.split(':')[-1] + '.xml'
-    doc.write(os.path.join(work_path, doc_filename))
+    # Write out each part of the document parts separately
+    # (edition, translation, etc.) so they can be referenced
+    # individually through the CTS refsDecl.
+    parts = doc.parts
+    for part in parts:
+        # Set urn, language per CTS epidoc guidelines.
+        if isinstance(part, tei.Edition):
+            part.name = f'{work.workUrn}.cdli-{work.language}'
+            part.language = work.language
+        elif isinstance(part, tei.Translation):
+            part.name = f'{work.workUrn}.cdli-{part.language}'
+        else:
+            print('Skipping unhandled document part', part)
+            continue
+
+        doc.parts = [part]
+
+        doc_filename = part.name.split(':')[-1] + '.xml'
+        doc.write(os.path.join(work_path, doc_filename))
 
     return success
 
