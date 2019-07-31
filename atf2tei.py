@@ -19,15 +19,20 @@ def convert(atf_text):
     """
     Create a TEI representation of a file-like object containing ATF.
     """
+
+    # Parse the ATF input string.
     atf = AtfFile(atf_text, 'cdli', False)
     if verbose:
         print("Parsed {} -- {}".format(atf.text.code, atf.text.description))
+
+    # Construct a TEI Document to hold the converted text.
     doc = tei.Document()
     doc.language = atf.text.language
     doc.header = tei.Header()
     doc.header.title = atf.text.description
     doc.header.cdli_code = atf.text.code
 
+    # Traverse the parse tree, recording lines under labels.
     translations = {}
     objects = [item for item in atf.text.children
                if isinstance(item, OraccObject)]
@@ -75,11 +80,22 @@ def convert(atf_text):
                     print('Skipping unknown section child type',
                           type(obj).__name__)
                     continue
-    objects = [item for item in atf.text.children
-               if isinstance(item, OraccObject)]
-    if objects:
+
+    # Add accumulated interlinear translations to the document.
+    for lang, tr_lines in translations.items():
         translation = tei.Translation()
+        translation.language = lang
         doc.parts.append(translation)
+        for tr_line in tr_lines:
+            text = ' '.join(tr_line.words)
+            line = tei.Line(tr_line.label, text)
+            translation.append(line)
+
+    # Traverse the tree again, recording any parallel translation sections.
+    # pyoracc only supports these for English.
+    translation = tei.Translation()
+    translation.language = 'eng'
+    translation_empty = True
     for item in objects:
         part = tei.TextPart(item.objecttype)
         translation.append(part)
@@ -96,18 +112,14 @@ def convert(atf_text):
                             text = ' '.join(obj.words)
                             line = tei.Line(obj.label, text)
                             div.append(line)
+                            translation_empty = False
                         else:
                             print('Skipping unknown section child type',
                                   {type(obj).__name__})
                             continue
-    for lang, tr_lines in translations.items():
-        translation = tei.Translation()
-        translation.language = lang
+    if not translation_empty:
         doc.parts.append(translation)
-        for tr_line in tr_lines:
-            text = ' '.join(tr_line.words)
-            line = tei.Line(tr_line.label, text)
-            translation.append(line)
+
     return doc
 
 

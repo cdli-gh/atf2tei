@@ -13,8 +13,9 @@ test_filename = 'SIL-034.atf'
 def test_convert():
     '''Verify conversion of a test file.'''
     with io.open(test_filename, encoding='utf-8') as f:
-        xml = atf2tei.convert(f.read())
-        assert xml
+        doc = atf2tei.convert(f.read())
+        assert doc
+        assert len(doc.parts) == 1
 
 
 def test_segmentor_single():
