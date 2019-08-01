@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.stoa.org/epidoc/schema/8.19/tei-epidoc.rng"
+  schematypens="http://relaxng.org/ns/structure/1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title>Iliad (Greek). Machine readable text</title>
+                <author>Homer</author>
+                <sponsor>Perseus Project, Tufts University</sponsor>
+                <funder n="org:AnnCPB">The Annenberg CPB/Project</funder>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>Trustees of Tufts University</publisher>
+                <pubPlace>Medford, MA</pubPlace>
+                <authority>Perseus Project</authority>
+            </publicationStmt>
+            <sourceDesc>
+                <biblStruct>
+                    <monogr>
+                        <author>Homer</author>
+                        <title>Iliadis (Iliad) in two volumes. David B. Monro and Thomas W. Allen, eds. Editio Tertia (Third Edition).</title>
+                        <imprint>
+                            <publisher>Oxford, Oxford University Press</publisher>
+                            <date>1920</date>
+                        </imprint>
+                    </monogr>
+                    <ref target="https://archive.org/details/homerioperarecog01homeuoft">Internet
+                        Archive</ref>
+                    <ref target="https://archive.org/details/homerioperarecog02homeuoft">Internet
+                        Archive</ref>
+                </biblStruct>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <refsDecl n="CTS">
+                <cRefPattern n="line" matchPattern="(\w+).(\w+)"
+                    replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1']//tei:l[@n='$2'])">
+                    <p>This pointer pattern extracts Book and Line</p>
+                </cRefPattern>
+                <cRefPattern n="book" matchPattern="(\w+)"
+                    replacementPattern="#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div[@n='$1'])">
+                    <p>This pointer pattern extracts Book</p>
+                </cRefPattern>
+            </refsDecl>
+            <refsDecl>
+                <refState delim="." unit="book"/>
+                <refState unit="line"/>
+            </refsDecl>
+        </encodingDesc>
+        <revisionDesc>
+            <change who="Ralph Giles" when="2019-07-29">Trimmed to one paragraph to make a test document.</change>
+        </revisionDesc>
+    </teiHeader>
+    <text xml:lang="grc">
+        <body>
+            <div type="edition" n="urn:cts:greekLit:tlg0012.tlg001.perseus-grc2" xml:lang="grc">
+                <div type="textpart" subtype="Book" n="1">
+                    <milestone ed="p" n="1" unit="card"/>
+                    <l n="1">
+                        <milestone ed="P" unit="para"/>μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος</l>
+                    <l n="2">οὐλομένην, ἣ μυρίʼ Ἀχαιοῖς ἄλγεʼ ἔθηκε,</l>
+                    <l n="3">πολλὰς δʼ ἰφθίμους ψυχὰς Ἄϊδι προΐαψεν</l>
+                    <l n="4">ἡρώων, αὐτοὺς δὲ ἑλώρια τεῦχε κύνεσσιν</l>
+                    <l n="5">οἰωνοῖσί τε πᾶσι, Διὸς δʼ ἐτελείετο βουλή,</l>
+                    <l n="6">ἐξ οὗ δὴ τὰ πρῶτα διαστήτην ἐρίσαντε</l>
+                    <l n="7">Ἀτρεΐδης τε ἄναξ ἀνδρῶν καὶ δῖος Ἀχιλλεύς.</l>
+                </div>
+            </div>
+        </body>
+    </text>
+</TEI>
