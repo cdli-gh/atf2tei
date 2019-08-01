@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import xml.etree.ElementTree as ET
 from xml.dom.minidom import parseString
 
@@ -106,7 +107,6 @@ def convert(atf, data_path, textgroup=None):
 
 if __name__ == '__main__':
     import io
-    import os
     import sys
 
     from concurrent import futures
