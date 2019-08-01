@@ -79,21 +79,16 @@ class RefsDecl(XMLSerializer):
 
     Results are specific to the way we structure cuneiform
     data from ATF.'''
-    prefix = '#xpath(/tei:TEI/tei:text/tei:body/tei:div'
+    prefix = '#xpath(/tei:TEI/tei:text/tei:body/tei:div/tei:div'
     levels = [
         (
-          'line', 3,
+          'line', 2,
           'This pattern references a specific line.',
-          prefix + "/tei:div[@n='$1']/tei:div[@n='$2']/tei:l[@n='$3'])"
+          prefix + "/tei:div[@n='$1']/tei:l[@n='$2'])"
         ),
         (
-          'surface', 2,
-          'This pattern references an inscribed surface.',
-          prefix + "/tei:div[@n='$1']/tei:div[@n='$2'])"
-        ),
-        (
-          'object', 1,
-          'This pattern references a specific artefact, usually a tablet.',
+          'surface', 1,
+          'This pattern references an inscribed surface on an object.',
           prefix + "/tei:div[@n='$1'])"
         ),
     ]
