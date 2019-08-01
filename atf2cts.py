@@ -78,14 +78,11 @@ def convert(atf, data_path, textgroup=None):
     work.workUrn = urn
     work.language = doc.language
     work.title = doc.header.title
-    work.label = f'CDLI {doc.header.cdli_code} {work.title}'
-    work.description = 'Cuneiform transcription converted from atf.'
 
     work_path = os.path.join(data_path, urn.split('.')[-1])
 
     print('Writing', urn, doc.language, 'to', work_path)
     os.makedirs(work_path, exist_ok=True)
-    work.write(os.path.join(work_path, '__cts__.xml'))
 
     # Add CTS refsDecl.
     encodingDesc = ET.Element('encodingDesc')
@@ -97,12 +94,15 @@ def convert(atf, data_path, textgroup=None):
     # individually through the CTS refsDecl.
     parts = doc.parts
     for part in parts:
-        # Set urn, language per CTS epidoc guidelines.
+        # Set CTS URN and metadata per epidoc guidelines.
+        part.label = f'CDLI {doc.header.cdli_code} {work.title}'
         if isinstance(part, tei.Edition):
             part.name = f'{work.workUrn}.cdli-{work.language}'
             part.language = work.language
+            part.description = 'Cuneiform transliteration converted from atf.'
         elif isinstance(part, tei.Translation):
             part.name = f'{work.workUrn}.cdli-{part.language}'
+            part.description = 'Cuneiform translation converted from atf.'
         else:
             print('Skipping unhandled document part', part)
             continue
@@ -111,6 +111,11 @@ def convert(atf, data_path, textgroup=None):
 
         doc_filename = part.name.split(':')[-1] + '.xml'
         doc.write(os.path.join(work_path, doc_filename))
+
+        work.parts.append(part)
+
+    # Write out the metadata index file.
+    work.write(os.path.join(work_path, '__cts__.xml'))
 
     return success
 

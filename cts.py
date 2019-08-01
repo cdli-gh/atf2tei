@@ -39,8 +39,7 @@ class Work(XMLSerializer):
         self.workUrn = None
         self.language = None
         self.title = None
-        self.label = None
-        self.description = None
+        self.parts = []
 
     @property
     def xml(self):
@@ -56,21 +55,31 @@ class Work(XMLSerializer):
         title = ET.SubElement(xml, 'ti:title')
         title.text = self.title
         title.set('xml:lang', 'eng')
-        edition = ET.SubElement(xml, 'ti:edition')
-        if self.workUrn:
-            edition.set('workUrn', self.workUrn)
-            editionUrn = self.workUrn + '.cdli'
-            if self.language:
-                editionUrn += '-' + self.language
-            edition.set('urn', editionUrn)
-        label = ET.SubElement(edition, 'ti:label')
-        if self.label:
-            label.text = self.label
-            label.set('xml:lang', 'eng')
-        description = ET.SubElement(edition, 'ti:description')
-        if self.description:
-            description.text = self.description
-            description.set('xml:lang', 'eng')
+
+        for part in self.parts:
+            if part.type == 'edition':
+                textElement = ET.SubElement(xml, 'ti:edition')
+                # ti:edition inherits the language of the ti:work element.
+            elif part.type == 'translation':
+                textElement = ET.SubElement(xml, 'ti:translation')
+                # Translations have their own languages.
+                textElement.set('xml:lang', part.language)
+
+            if self.workUrn:
+                textElement.set('workUrn', self.workUrn)
+                urn = self.workUrn + '.cdli'
+                if part.language:
+                    urn += '-' + part.language
+                textElement.set('urn', urn)
+
+            labelElement = ET.SubElement(textElement, 'ti:label')
+            labelElement.text = part.label
+            labelElement.set('xml:lang', 'mul')
+
+            descriptionElement = ET.SubElement(textElement, 'ti:description')
+            descriptionElement.text = part.description
+            descriptionElement.set('xml:lang', 'eng')
+
         return xml
 
 

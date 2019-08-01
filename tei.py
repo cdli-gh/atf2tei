@@ -94,6 +94,9 @@ class TextPart(XMLSerializer):
         self.type = 'textpart'
         self.language = None
         self.children = []
+        # Attributes for CTS metadata.
+        self.label = None
+        self.description = None
 
     def append(self, obj):
         'Append a sub-element to the list of children.'
