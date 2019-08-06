@@ -135,7 +135,7 @@ def normalize_transliteration(words):
     # See http://oracc.org/doc/help/editinginatf/primer/inlinetutorial/
     result = []
     for word in words:
-        'Convert digraphs to corresponding unicode characters.'
+        # Convert digraphs to corresponding unicode characters.
         word = re.sub(r'sz', 'š', word)     # \u0161
         word = re.sub(r'SZ', 'Š', word)     # \u0160
         word = re.sub(r's,', 'ṣ', word)     # \u1E63
@@ -148,16 +148,16 @@ def normalize_transliteration(words):
         word = re.sub(r'H,', 'Ḫ', word)     # \u1E2A
         word = re.sub(r'j', 'ŋ', word)      # \u014B
         word = re.sub(r'J', 'Ŋ', word)      # \u014A
-        'Convert damage marks to half-brackets.'
+        # Convert damage marks to half-brackets.
         marked = [
             '⸢' + sign[:-1] + '⸣' if sign.endswith('#')
             else sign
             for sign in word.split('-')
         ]
         word = '-'.join(marked)
-        'XML-escape the result.'
+        # XML-escape the result.
         word = escape(word)
-        'Convert markup to tei elements.'
+        # Convert markup to tei elements.
         # TODO: <c type="determinative">
         # TODO: <c type="sign" subtype="logo">
         result.append(word)
