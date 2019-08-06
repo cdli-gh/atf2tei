@@ -150,3 +150,15 @@ class Line(XMLSerializer):
         xml.set('n', self.ref)
         xml.text = self.content
         return xml
+
+class Note(XMLSerializer):
+    '''Represents an annotation.'''
+    def __init__(self, text):
+        self.text = text
+
+    @property
+    def xml(self):
+        'Construct an XML ElementTree representation.'
+        xml = ET.Element('note')
+        xml.text = self.text
+        return xml

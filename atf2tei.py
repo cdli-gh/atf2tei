@@ -8,6 +8,7 @@ from xml.sax.saxutils import escape
 from pyoracc.atf.common.atffile import AtfFile
 from pyoracc.model.line import Line
 from pyoracc.model.oraccobject import OraccObject
+from pyoracc.model.state import State
 from pyoracc.model.translation import Translation
 
 import tei
@@ -76,6 +77,10 @@ def convert(atf_text):
                             if lang not in translations:
                                 translations[lang] = []
                             translations[lang].append(tr_line)
+                elif isinstance(obj, State):
+                    # Strip the initial '$' off the ATF representation.
+                    text = str(obj)[2:]
+                    div.append(tei.Note(text))
                 else:
                     print('Skipping unknown section child type',
                           type(obj).__name__)

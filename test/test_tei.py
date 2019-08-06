@@ -48,6 +48,15 @@ def test_line():
     assert xml.text == text
 
 
+def test_note():
+    'Verify note serialization.'
+    text = 'blank space'
+    note = tei.Note(text)
+    xml = ET.fromstring(str(note))
+    assert xml.tag == 'note'
+    assert xml.text == text
+
+
 def test_document():
     'Verify basic attributes of a document are serialized.'
     name = 'Example Text Document'
