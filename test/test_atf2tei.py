@@ -46,14 +46,33 @@ def test_segmentor(count):
     assert (len(list(atf2cts.segmentor(multi)))) == count
 
 
-def test_note():
-    '''Verify conversion of $-line annotations.'''
+@pytest.mark.parametrize('text', [
+    'single ruling',
+    'double ruling',
+    'triple ruling',
+    pytest.param('blank space',
+                 marks=pytest.mark.xfail(
+                     reason="pyoracc inverts scope and state")),
+    'broken',
+    pytest.param('beginning broken',
+                 marks=pytest.mark.xfail(
+                     reason="pyoracc doesn't preserve 'broken' scope")),
+    pytest.param('rest broken',
+                 marks=pytest.mark.xfail(
+                     reason="pyoracc doesn't preserve 'broken' scope")),
+])
+def test_note(text):
+    '''Verify conversion of $-line annotations.
 
-    # Append a $-line to the expected ATF header lines.
-    ruling_text = 'double ruling'
-    text = atf_prefix + f'$ {ruling_text}\n'
+    Accept the contexts of a $-line state annotation as a parameter
+    and try parsing a document containing that right after a test
+    header.'''
+
+    # Append the $-line to the expected ATF header lines.
+    atf = atf_prefix + f'$ {text}\n'
+
     # Convert.
-    doc = atf2tei.convert(text)
+    doc = atf2tei.convert(atf)
 
     # Verify the conversion produced a single edition div.
     assert len(doc.parts) == 1
@@ -75,4 +94,4 @@ def test_note():
     # Verify the surface has a single note child.
     assert len(div.children) == 1
     note = div.children[0]
-    assert note.text == ruling_text
+    assert note.text == text
