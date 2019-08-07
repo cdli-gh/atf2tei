@@ -4,6 +4,10 @@ test:
   script:
     - pip install pipenv
     - pipenv install --dev
-    - pipenv check
+      # Ignore Debian-only CVE-2019-7653
+      # This can be removed when HookTest updates to an RDFLib
+      # version post-4.2.2 or when safety-db removes the incorrect
+      # listing. https://github.com/RDFLib/rdflib/issues/902
+    - pipenv check --ignore 36882
     - pipenv run pytest
     - pipenv run pycodestyle atf2tei.py
